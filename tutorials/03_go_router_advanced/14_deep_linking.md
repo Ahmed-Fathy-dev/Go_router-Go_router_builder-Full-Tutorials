@@ -172,17 +172,17 @@ GoRouter(
 ### الطريقة 2: Path-based routing
 
 ```dart
-// في web/index.html
+// In web/index.html
 <script>
   // Configure the URL strategy
   window.flutterWebRenderer = "html";
 </script>
 
-// في main.dart
+// In main.dart
 import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() {
-  usePathUrlStrategy();  // بدون #
+  usePathUrlStrategy();  // Without #
   runApp(MyApp());
 }
 ```
