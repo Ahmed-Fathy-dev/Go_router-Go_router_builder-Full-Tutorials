@@ -2,7 +2,7 @@
 
 ## يعني إيه ShellRoute؟
 
-الـ ShellRoute بيسمحلك تعمل **layout مشترك** (shell) يفضل ثابت وبس الـ content جواه يتغير. أشهر استخدام ليها هو الـ Bottom Navigation Bar أو الـ Drawer.
+الـ ShellRoute بيسمحلك تعمل **layout مشترك** (shell) يفضل ثابت بس الـ content جواه يتغير. أشهر استخدام ليها هو الـ Bottom Navigation Bar أو الـ Drawer.
 
 ### المشكلة بدون ShellRoute
 
