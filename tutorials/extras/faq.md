@@ -20,7 +20,7 @@ context.push('/details');
 
 ---
 
-### س: متى أستخدم GoRouter Builder؟
+### س: امتى أستخدم GoRouter Builder؟
 
 استخدمه لو:
 - عندك routes كتير
@@ -263,7 +263,7 @@ GoRouter(
 
 ## المزيد
 
-### س: وين الـ documentation الرسمي؟
+### س: فين الـ documentation الرسمي؟
 
 - [pub.dev/packages/go_router](https://pub.dev/packages/go_router)
 - [pub.dev/documentation/go_router](https://pub.dev/documentation/go_router/latest/)
