@@ -21,7 +21,7 @@
 ال **StatefulShellRoute** بيحل المشكلة دي عن طريق:
 - إنشاء Navigator **منفصل** لكل branch
 - حفظ الحالة لكل tab
-- الـ screens مش بتتدمر لما تتنقل لـ tab تاني
+- الـ screens مش بيتعملها dispose لما تتنقل لـ tab تاني
 
 ---
 
