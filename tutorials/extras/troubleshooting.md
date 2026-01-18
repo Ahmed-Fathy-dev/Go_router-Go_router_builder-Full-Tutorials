@@ -16,12 +16,12 @@ Exception: No GoRouter found in context
 
 ### الحل
 ```dart
-// تأكد إنك بتستخدم MaterialApp.router
+// Make sure you're using MaterialApp.router
 MaterialApp.router(
   routerConfig: appRouter,  // ✅
 )
 
-// مش MaterialApp العادي
+// Not the regular MaterialApp
 MaterialApp(
   home: HomeScreen(),  // ❌
 )
@@ -41,16 +41,16 @@ Exception: no GoRoute found for location: /unknown
 
 ### الحل
 ```dart
-// 1. تأكد من صحة الـ path
-context.go('/products');  // تأكد إنه معرف
+// 1. Make sure the path is correct
+context.go('/products');  // Make sure it's defined
 
-// 2. أضف errorBuilder
+// 2. Add errorBuilder
 GoRouter(
   errorBuilder: (context, state) => NotFoundScreen(),
   routes: [...],
 )
 
-// 3. أو استخدم onException
+// 3. Or use onException
 GoRouter(
   onException: (context, state, router) {
     router.go('/');
@@ -73,13 +73,13 @@ Exception: Redirect loop detected
 
 ### الحل
 ```dart
-// ❌ غلط
+// Wrong ❌
 redirect: (context, state) {
   if (!isLoggedIn) return '/login';
-  return null;  // بس مفيش check للـ /login!
+  return null;  // But there's no check for /login!
 }
 
-// ✅ صح
+// Correct ✅
 redirect: (context, state) {
   final isLoggingIn = state.uri.path == '/login';
 
@@ -104,7 +104,7 @@ redirect: (context, state) {
 
 ### الحل
 ```dart
-// استخدم StatefulShellRoute بدل ShellRoute
+// Use StatefulShellRoute instead of ShellRoute
 StatefulShellRoute.indexedStack(
   builder: (context, state, navigationShell) => ...,
   branches: [
@@ -112,7 +112,7 @@ StatefulShellRoute.indexedStack(
   ],
 )
 
-// وأضف AutomaticKeepAliveClientMixin
+// And add AutomaticKeepAliveClientMixin
 class _MyScreenState extends State<MyScreen>
     with AutomaticKeepAliveClientMixin {
 
@@ -121,7 +121,7 @@ class _MyScreenState extends State<MyScreen>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);  // مهم!
+    super.build(context);  // Important!
     return ...;
   }
 }
@@ -136,14 +136,14 @@ class _MyScreenState extends State<MyScreen>
 
 ### الحل
 ```dart
-// تأكد من تطابق الأسماء
+// Make sure names match
 GoRoute(
-  path: '/product/:productId',  // اسم الـ param
+  path: '/product/:productId',  // The param name
   builder: (context, state) {
-    // ❌ غلط
+    // Wrong ❌
     final id = state.pathParameters['id'];
 
-    // ✅ صح
+    // Correct ✅
     final id = state.pathParameters['productId'];
   },
 )
@@ -160,13 +160,13 @@ Could not find a file named "pubspec.yaml"
 
 ### الحل
 ```bash
-# تأكد إنك في المجلد الصحيح
+# Make sure you're in the correct folder
 cd your_project_folder
 
-# امسح الـ cache
+# Clear the cache
 dart run build_runner clean
 
-# شغل تاني
+# Run again
 dart run build_runner build --delete-conflicting-outputs
 ```
 
@@ -181,15 +181,15 @@ Error: The part-of directive must be the first non-comment directive
 
 ### الحل
 ```dart
-// ❌ غلط
+// Wrong ❌
 import 'package:flutter/material.dart';
-part 'routes.g.dart';  // بعد الـ imports
+part 'routes.g.dart';  // After the imports
 
-// ✅ صح
+// Correct ✅
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-part 'routes.g.dart';  // بعد كل الـ imports
+part 'routes.g.dart';  // After all imports
 ```
 
 ---
@@ -236,13 +236,13 @@ xcrun simctl openurl booted "myapp://path"
 
 ### الحل
 ```dart
-// استخدم go() للـ main navigation
+// Use go() for main navigation
 context.go('/products');
 
-// استخدم push() للـ stack-based
+// Use push() for stack-based
 context.push('/product/123');
 
-// للـ web، تأكد من استخدام path-based routing
+// For web, make sure to use path-based routing
 import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() {
@@ -262,10 +262,10 @@ final product = state.extra;  // Object?
 
 ### الحل
 ```dart
-// Cast بأمان
+// Cast safely
 final product = state.extra as Product?;
 
-// أو مع null check
+// Or with null check
 if (state.extra is Product) {
   final product = state.extra as Product;
 }

@@ -3,13 +3,13 @@
 ## 1. استخدم StatefulShellRoute للـ Tabs
 
 ```dart
-// ❌ غلط - كل tab بيتبني من الأول
+// Wrong ❌ - each tab rebuilds from scratch
 ShellRoute(
   builder: (context, state, child) => TabScaffold(child: child),
   routes: [...],
 )
 
-// ✅ صح - الـ tabs بتتحفظ
+// Correct ✅ - tabs are preserved
 StatefulShellRoute.indexedStack(
   builder: (context, state, navigationShell) => TabScaffold(
     navigationShell: navigationShell,
@@ -32,11 +32,11 @@ class _MyTabScreenState extends State<MyTabScreen>
     with AutomaticKeepAliveClientMixin {
 
   @override
-  bool get wantKeepAlive => true;  // 👈 مهم
+  bool get wantKeepAlive => true;  // 👈 Important
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);  // 👈 مهم
+    super.build(context);  // 👈 Important
     return ExpensiveWidget();
   }
 }
@@ -47,13 +47,13 @@ class _MyTabScreenState extends State<MyTabScreen>
 ## 3. تجنب إعادة البناء غير الضرورية
 
 ```dart
-// ❌ غلط - الـ router بيتبني كل مرة
+// Wrong ❌ - router rebuilds every time
 Widget build(BuildContext context) {
-  final router = GoRouter(routes: [...]);  // جديد كل مرة!
+  final router = GoRouter(routes: [...]);  // New every time!
   return MaterialApp.router(routerConfig: router);
 }
 
-// ✅ صح - الـ router ثابت
+// Correct ✅ - router is constant
 final appRouter = GoRouter(routes: [...]);
 
 Widget build(BuildContext context) {
@@ -69,12 +69,12 @@ Widget build(BuildContext context) {
 GoRoute(
   path: '/heavy-screen',
   builder: (context, state) {
-    // الـ screen بتتحمل بس لما تحتاجها
+    // Screen loads only when needed
     return const HeavyScreen();
   },
 )
 
-// أو باستخدام FutureBuilder
+// Or using FutureBuilder
 GoRoute(
   path: '/data-screen',
   builder: (context, state) {
@@ -96,16 +96,16 @@ GoRoute(
 ## 5. تجنب Redirect المعقد
 
 ```dart
-// ❌ غلط - redirect بطيء
+// Wrong ❌ - slow redirect
 redirect: (context, state) async {
   await Future.delayed(Duration(seconds: 1));  // ❌
   final user = await AuthService.getUser();    // ❌
   // ...
 }
 
-// ✅ صح - redirect سريع
+// Correct ✅ - fast redirect
 redirect: (context, state) {
-  // استخدم cached data
+  // Use cached data
   final isLoggedIn = AuthService.cachedLoginState;
   if (!isLoggedIn) return '/login';
   return null;
@@ -117,7 +117,7 @@ redirect: (context, state) {
 ## 6. استخدم const للـ Routes
 
 ```dart
-// ✅ صح - const routes
+// Correct ✅ - const routes
 const HomeRoute().go(context);
 const ProductRoute(id: 123).push(context);
 
@@ -139,7 +139,7 @@ StatefulShellBranch(
     GoRoute(
       path: '/home',
       pageBuilder: (context, state) {
-        // بدون transition للـ tabs
+        // No transition for tabs
         return NoTransitionPage(
           key: state.pageKey,
           child: const HomeScreen(),
@@ -155,7 +155,7 @@ StatefulShellBranch(
 ## 8. Extra بدل API Calls
 
 ```dart
-// ❌ غلط - API call كل مرة
+// Wrong ❌ - API call every time
 GoRoute(
   path: '/product/:id',
   builder: (context, state) {
@@ -166,7 +166,7 @@ GoRoute(
   },
 )
 
-// ✅ صح - استخدم extra لو عندك الـ data
+// Correct ✅ - use extra if you have the data
 context.go('/product/123', extra: productObject);
 
 GoRoute(
@@ -174,9 +174,9 @@ GoRoute(
   builder: (context, state) {
     final product = state.extra as Product?;
     if (product != null) {
-      return ProductScreen(product: product);  // مباشرة!
+      return ProductScreen(product: product);  // Directly!
     }
-    // Fallback لو مفيش extra
+    // Fallback if no extra
     return ProductScreen.fromId(state.pathParameters['id']!);
   },
 )
@@ -195,10 +195,10 @@ class TabScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ❌ الـ body بيتبني كل مرة
+      // Wrong ❌ - body rebuilds every time
       // body: navigationShell,
 
-      // ✅ استخدم RepaintBoundary
+      // Correct ✅ - use RepaintBoundary
       body: RepaintBoundary(
         child: navigationShell,
       ),
@@ -213,7 +213,7 @@ class TabScaffold extends StatelessWidget {
 ## 10. Deferred Loading
 
 ```dart
-// للـ screens الكبيرة
+// For large screens
 import 'heavy_screen.dart' deferred as heavy;
 
 GoRoute(

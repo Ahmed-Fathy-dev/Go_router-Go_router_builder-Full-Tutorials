@@ -87,11 +87,11 @@ GoRouter(
 ```dart
 GoRouter(
   onException: (context, state, router) {
-    // تسجيل الخطأ
+    // Log the error
     print('Navigation error: ${state.uri}');
     print('Exception: ${state.error}');
 
-    // ممكن تعمل redirect
+    // You can redirect
     router.go('/404', extra: state.uri.toString());
   },
 
@@ -319,13 +319,13 @@ GoRoute(
   redirect: (context, state) {
     final id = state.pathParameters['id'];
 
-    // تحقق من صحة الـ ID
+    // Validate the ID
     if (id == null || int.tryParse(id) == null) {
       return '/error?message=Invalid user ID';
     }
 
-    // تحقق من وجود الـ user (sync فقط)
-    // لو محتاج async، استخدم approach تاني
+    // Check if user exists (sync only)
+    // If you need async, use a different approach
 
     return null;
   },
@@ -351,7 +351,7 @@ GoRoute(
       );
     }
 
-    // تحقق إضافي
+    // Additional validation
     if (id < 0) {
       return const ErrorScreen(
         message: 'Product ID must be positive',
@@ -492,7 +492,7 @@ class _AnimatedErrorScreenState extends State<AnimatedErrorScreen>
 
 ```dart
 GoRouter(
-  debugLogDiagnostics: true,  // في الـ development
+  debugLogDiagnostics: true,  // In development
 
   onException: (context, state, router) {
     // Log to analytics

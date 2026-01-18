@@ -14,7 +14,7 @@
 ```dart
 GoRouter(
   redirect: (context, state) {
-    // بيتنفذ قبل أي navigation
+    // Executes before any navigation
   },
   routes: [...],
 )
@@ -27,7 +27,7 @@ GoRouter(
 GoRoute(
   path: '/admin',
   redirect: (context, state) {
-    // بيتنفذ بس لما حد يحاول يدخل /admin
+    // Executes only when someone tries to access /admin
   },
   builder: (context, state) => const AdminScreen(),
 )
@@ -44,25 +44,25 @@ final appRouter = GoRouter(
   initialLocation: '/',
 
   redirect: (BuildContext context, GoRouterState state) {
-    // التحقق من حالة تسجيل الدخول
+    // Check login status
     final isLoggedIn = AuthService.instance.isLoggedIn;
 
-    // الصفحات اللي مش محتاجة login
+    // Pages that don't require login
     final publicPaths = ['/login', '/register', '/forgot-password'];
     final isPublicPath = publicPaths.contains(state.uri.path);
 
-    // لو مش مسجل دخول وبيحاول يدخل صفحة محمية
+    // If not logged in and trying to access a protected page
     if (!isLoggedIn && !isPublicPath) {
-      // احفظ الصفحة اللي كان عايز يروحها
+      // Save the page they wanted to go to
       return '/login?redirect=${state.uri.path}';
     }
 
-    // لو مسجل دخول وبيحاول يدخل Login
+    // If logged in and trying to access Login
     if (isLoggedIn && state.uri.path == '/login') {
-      return '/';  // وديه للـ Home
+      return '/';  // Send to Home
     }
 
-    // متعملش redirect
+    // Don't redirect
     return null;
   },
 
@@ -95,7 +95,7 @@ GoRoute(
   redirect: (context, state) {
     final user = AuthService.instance.currentUser;
 
-    // لو مش admin، ارجعه للـ Home
+    // If not admin, redirect to Home
     if (user == null || !user.isAdmin) {
       return '/';
     }
@@ -117,7 +117,7 @@ GoRoute(
       path: 'users',
       redirect: (context, state) {
         if (!hasPermission('manage_users')) {
-          return '/admin';  // ارجعه للـ dashboard
+          return '/admin';  // Redirect to dashboard
         }
         return null;
       },
@@ -144,7 +144,7 @@ GoRoute(
 لما حالة الـ authentication تتغير، محتاج الـ router يعيد تقييم الـ redirect. استخدم `refreshListenable`:
 
 ```dart
-// الـ Auth Notifier
+// The Auth Notifier
 class AuthNotifier extends ChangeNotifier {
   bool _isLoggedIn = false;
 
@@ -152,7 +152,7 @@ class AuthNotifier extends ChangeNotifier {
 
   void login() {
     _isLoggedIn = true;
-    notifyListeners();  // 👈 ده بيخلي الـ router يعيد التقييم
+    notifyListeners();  // 👈 This makes the router re-evaluate
   }
 
   void logout() {
@@ -161,12 +161,12 @@ class AuthNotifier extends ChangeNotifier {
   }
 }
 
-// إنشاء instance
+// Create instance
 final authNotifier = AuthNotifier();
 
-// الـ Router
+// The Router
 final appRouter = GoRouter(
-  refreshListenable: authNotifier,  // 👈 ربط الـ notifier
+  refreshListenable: authNotifier,  // 👈 Connect the notifier
 
   redirect: (context, state) {
     final isLoggedIn = authNotifier.isLoggedIn;
@@ -193,7 +193,7 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier();
 });
 
-// في الـ router
+// In the router
 GoRouter(
   refreshListenable: GoRouterRefreshStream(
     ref.watch(authProvider.notifier).stream,
@@ -222,7 +222,7 @@ class AuthService extends ChangeNotifier {
   User? get currentUser => _currentUser;
 
   Future<void> login(String email, String password) async {
-    // محاكاة API call
+    // Simulate API call
     await Future.delayed(const Duration(seconds: 1));
 
     _currentUser = User(
@@ -274,9 +274,9 @@ final appRouter = GoRouter(
     final isLoggingIn = state.uri.path == '/login';
     final isRegistering = state.uri.path == '/register';
 
-    // الصفحات العامة
+    // Public pages
     if (!isLoggedIn && !isLoggingIn && !isRegistering) {
-      // احفظ الـ path عشان نرجعله بعد Login
+      // Save the path to return to after Login
       final redirectTo = state.uri.toString();
       if (redirectTo != '/') {
         return '/login?from=$redirectTo';
@@ -284,9 +284,9 @@ final appRouter = GoRouter(
       return '/login';
     }
 
-    // لو مسجل دخول ويحاول يدخل Login/Register
+    // If logged in and trying to access Login/Register
     if (isLoggedIn && (isLoggingIn || isRegistering)) {
-      // شوف لو فيه redirect path
+      // Check if there's a redirect path
       final from = state.uri.queryParameters['from'];
       return from ?? '/';
     }
@@ -317,21 +317,21 @@ final appRouter = GoRouter(
       builder: (context, state) => const RegisterScreen(),
     ),
 
-    // Profile (محمي)
+    // Profile (protected)
     GoRoute(
       path: '/profile',
       name: 'profile',
       builder: (context, state) => const ProfileScreen(),
     ),
 
-    // Admin (محمي + يحتاج صلاحية)
+    // Admin (protected + requires permission)
     GoRoute(
       path: '/admin',
       name: 'admin',
       redirect: (context, state) {
         final user = AuthService.instance.currentUser;
         if (user == null || !user.isAdmin) {
-          return '/';  // مش admin، ارجعه للـ Home
+          return '/';  // Not admin, redirect to Home
         }
         return null;
       },
@@ -367,8 +367,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (mounted) {
-        // الـ router هيعمل redirect تلقائي بسبب refreshListenable
-        // بس لو فيه path معين، روحله
+        // The router will redirect automatically due to refreshListenable
+        // But if there's a specific path, go to it
         if (widget.redirectTo != null) {
           context.go(widget.redirectTo!);
         }
@@ -442,7 +442,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
 ```dart
 GoRouter(
-  redirectLimit: 10,  // زود الحد لو محتاج
+  redirectLimit: 10,  // Increase the limit if needed
   redirect: (context, state) {
     // ...
   },
@@ -487,7 +487,7 @@ GoRouter(
   ],
 )
 
-// لما تروح لـ /parent/child:
+// When you go to /parent/child:
 // Output:
 // 1. Top-level
 // 2. Parent route
@@ -512,7 +512,7 @@ redirect: (context, state) {
 ### 2. تحقق من الـ path قبل ما تعمل redirect
 
 ```dart
-// ✅ تجنب redirect للنفس الصفحة
+// Correct ✅ Avoid redirecting to the same page
 redirect: (context, state) {
   if (!isLoggedIn && state.uri.path != '/login') {
     return '/login';
@@ -524,7 +524,7 @@ redirect: (context, state) {
 ### 3. استخدم refreshListenable
 
 ```dart
-// ✅ عشان الـ router يعرف لما الـ auth state تتغير
+// Correct ✅ So the router knows when auth state changes
 GoRouter(
   refreshListenable: authNotifier,
   redirect: ...

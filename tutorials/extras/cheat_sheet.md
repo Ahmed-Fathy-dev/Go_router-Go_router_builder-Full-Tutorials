@@ -3,23 +3,23 @@
 ## Navigation Methods
 
 ```dart
-// الذهاب (يمسح الـ stack)
+// Go (clears the stack)
 context.go('/path');
 context.goNamed('name');
 
-// Push (يضيف للـ stack)
+// Push (adds to stack)
 context.push('/path');
 context.pushNamed('name');
 
-// Pop (رجوع)
+// Pop (go back)
 context.pop();
-context.pop(result);  // مع return value
+context.pop(result);  // With return value
 
-// استبدال
+// Replace
 context.replace('/path');
 context.pushReplacement('/path');
 
-// التحقق
+// Check
 context.canPop();
 ```
 
@@ -29,8 +29,8 @@ context.canPop();
 
 ```dart
 GoRoute(
-  path: '/path/:id',          // المسار
-  name: 'route-name',         // الاسم (اختياري)
+  path: '/path/:id',          // Path
+  name: 'route-name',         // Name (optional)
   builder: (context, state) => Screen(),
   pageBuilder: (context, state) => CustomPage(),
   redirect: (context, state) => '/other',
@@ -106,7 +106,7 @@ StatefulShellRoute.indexedStack(
   ],
 )
 
-// التنقل بين الـ branches
+// Navigate between branches
 navigationShell.goBranch(index);
 navigationShell.goBranch(index, initialLocation: true);
 ```
@@ -116,7 +116,7 @@ navigationShell.goBranch(index, initialLocation: true);
 ## GoRouter Builder
 
 ```dart
-// التعريف
+// Define
 @TypedGoRoute<HomeRoute>(path: '/')
 class HomeRoute extends GoRouteData {
   const HomeRoute();
@@ -125,7 +125,7 @@ class HomeRoute extends GoRouteData {
   Widget build(context, state) => HomeScreen();
 }
 
-// الاستخدام
+// Use
 const HomeRoute().go(context);
 HomeRoute().push(context);
 ```
@@ -166,7 +166,7 @@ pageBuilder: (context, state) => CustomTransitionPage(
   },
 )
 
-// بدون transition
+// Without transition
 NoTransitionPage(key: state.pageKey, child: MyScreen())
 ```
 
@@ -190,7 +190,7 @@ GoRoute(
   },
 )
 
-// مع refreshListenable
+// With refreshListenable
 GoRouter(
   refreshListenable: authNotifier,  // ChangeNotifier
   redirect: ...

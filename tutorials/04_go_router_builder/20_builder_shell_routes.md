@@ -36,7 +36,7 @@ class MainShellRoute extends ShellRouteData {
   Widget builder(
     BuildContext context,
     GoRouterState state,
-    Widget navigator,  // 👈 الـ child route
+    Widget navigator,  // 👈 The child route
   ) {
     return Scaffold(
       body: navigator,
@@ -441,16 +441,16 @@ class AppShellWidget extends StatelessWidget {
 للخروج من الـ Shell:
 
 ```dart
-// أنشئ GlobalKey
+// Create GlobalKey
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
-// في الـ router
+// In the router
 final router = GoRouter(
   navigatorKey: rootNavigatorKey,
   routes: $appRoutes,
 );
 
-// في الـ Route class
+// In the Route class
 @TypedGoRoute<CheckoutRoute>(path: '/checkout')
 class CheckoutRoute extends GoRouteData {
   const CheckoutRoute();
@@ -469,7 +469,7 @@ class CheckoutRoute extends GoRouteData {
 ## routes خارج الـ Shell
 
 ```dart
-// Routes داخل الـ Shell
+// Routes inside the Shell
 @TypedStatefulShellRoute<AppShellRoute>(
   branches: [
     TypedStatefulShellBranch<HomeBranch>(
@@ -481,14 +481,14 @@ class CheckoutRoute extends GoRouteData {
 )
 class AppShellRoute extends StatefulShellRouteData { ... }
 
-// Routes خارج الـ Shell
+// Routes outside the Shell
 @TypedGoRoute<LoginRoute>(path: '/login')
 class LoginRoute extends GoRouteData { ... }
 
 @TypedGoRoute<OnboardingRoute>(path: '/onboarding')
 class OnboardingRoute extends GoRouteData { ... }
 
-// كلهم هيتجمعوا في $appRoutes
+// All will be collected in $appRoutes
 ```
 
 ---

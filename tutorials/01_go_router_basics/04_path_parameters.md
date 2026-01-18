@@ -20,7 +20,7 @@
 
 ```dart
 GoRoute(
-  path: '/user/:id',  // :id هو الـ path parameter
+  path: '/user/:id',  // :id is the path parameter
   builder: (context, state) {
     final userId = state.pathParameters['id']!;
     return UserScreen(userId: userId);
@@ -31,7 +31,7 @@ GoRoute(
 ### أمثلة متعددة
 
 ```dart
-// parameter واحد
+// Single parameter
 GoRoute(
   path: '/product/:productId',
   builder: (context, state) {
@@ -40,7 +40,7 @@ GoRoute(
   },
 )
 
-// أكتر من parameter
+// Multiple parameters
 GoRoute(
   path: '/store/:storeId/product/:productId',
   builder: (context, state) {
@@ -50,7 +50,7 @@ GoRoute(
   },
 )
 
-// parameter في نص الـ path
+// Parameter in the middle of path
 GoRoute(
   path: '/users/:userId/orders',
   builder: (context, state) {
@@ -70,13 +70,13 @@ GoRoute(
 GoRoute(
   path: '/article/:slug',
   builder: (context, state) {
-    // الـ pathParameters هي Map<String, String>
+    // pathParameters is a Map<String, String>
     final Map<String, String> params = state.pathParameters;
 
-    // الحصول على قيمة معينة
+    // Get a specific value
     final String slug = params['slug']!;
 
-    // أو مباشرة
+    // Or directly
     final String slug2 = state.pathParameters['slug']!;
 
     return ArticleScreen(slug: slug);
@@ -92,7 +92,7 @@ GoRoute(
 GoRoute(
   path: '/user/:id',
   builder: (context, state) {
-    // تحويل لـ int
+    // Convert to int
     final int userId = int.parse(state.pathParameters['id']!);
 
     return UserScreen(userId: userId);
@@ -102,7 +102,7 @@ GoRoute(
 GoRoute(
   path: '/date/:timestamp',
   builder: (context, state) {
-    // تحويل لـ DateTime
+    // Convert to DateTime
     final timestamp = int.parse(state.pathParameters['timestamp']!);
     final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
 
@@ -117,7 +117,7 @@ GoRoute(
 GoRoute(
   path: '/product/:id',
   builder: (context, state) {
-    // استخدام tryParse للأمان
+    // Use tryParse for safety
     final id = int.tryParse(state.pathParameters['id'] ?? '');
 
     if (id == null) {
@@ -136,24 +136,24 @@ GoRoute(
 ### باستخدام go()
 
 ```dart
-// الذهاب لصفحة user معين
+// Go to specific user page
 context.go('/user/123');
 
-// مع متغير
+// With variable
 final userId = '456';
 context.go('/user/$userId');
 
-// أكتر من parameter
+// Multiple parameters
 context.go('/store/main/product/789');
 ```
 
 ### باستخدام push()
 
 ```dart
-// فتح صفحة منتج
+// Open product page
 context.push('/product/${product.id}');
 
-// مع String interpolation
+// With String interpolation
 final storeId = 'cairo';
 final productId = 'laptop-001';
 context.push('/store/$storeId/product/$productId');
@@ -169,19 +169,19 @@ context.push('/store/$storeId/product/$productId');
 final appRouter = GoRouter(
   initialLocation: '/',
   routes: [
-    // الصفحة الرئيسية
+    // Home page
     GoRoute(
       path: '/',
       builder: (context, state) => const HomeScreen(),
     ),
 
-    // قائمة المستخدمين
+    // Users list
     GoRoute(
       path: '/users',
       builder: (context, state) => const UsersListScreen(),
     ),
 
-    // تفاصيل مستخدم معين
+    // Specific user details
     GoRoute(
       path: '/user/:userId',
       builder: (context, state) {
@@ -190,7 +190,7 @@ final appRouter = GoRouter(
       },
     ),
 
-    // طلبات مستخدم معين
+    // Specific user orders
     GoRoute(
       path: '/user/:userId/orders',
       builder: (context, state) {
@@ -199,7 +199,7 @@ final appRouter = GoRouter(
       },
     ),
 
-    // تفاصيل طلب معين
+    // Specific order details
     GoRoute(
       path: '/user/:userId/order/:orderId',
       builder: (context, state) {
@@ -218,7 +218,7 @@ final appRouter = GoRouter(
 class UsersListScreen extends StatelessWidget {
   const UsersListScreen({super.key});
 
-  // بيانات تجريبية
+  // Sample data
   final List<Map<String, dynamic>> users = const [
     {'id': '1', 'name': 'أحمد محمد'},
     {'id': '2', 'name': 'سارة علي'},
@@ -239,7 +239,7 @@ class UsersListScreen extends StatelessWidget {
             subtitle: Text('ID: ${user['id']}'),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
-              // التنقل مع الـ userId
+              // Navigate with userId
               context.push('/user/${user['id']}');
             },
           );
@@ -267,7 +267,7 @@ class UserDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // معلومات المستخدم
+            // User info
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -289,12 +289,12 @@ class UserDetailsScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // أزرار التنقل
+            // Navigation buttons
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  // التنقل لطلبات المستخدم
+                  // Navigate to user orders
                   context.push('/user/$userId/orders');
                 },
                 icon: const Icon(Icons.shopping_bag),
@@ -319,7 +319,7 @@ class UserOrdersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // بيانات تجريبية
+    // Sample data
     final orders = [
       {'id': 'ORD-001', 'total': 150.0, 'status': 'delivered'},
       {'id': 'ORD-002', 'total': 280.0, 'status': 'pending'},
@@ -337,7 +337,7 @@ class UserOrdersScreen extends StatelessWidget {
             subtitle: Text('الإجمالي: ${order['total']} ج.م'),
             trailing: Chip(label: Text(order['status'] as String)),
             onTap: () {
-              // التنقل لتفاصيل الطلب مع userId و orderId
+              // Navigate to order details with userId and orderId
               context.push('/user/$userId/order/${order['id']}');
             },
           );
@@ -360,12 +360,12 @@ GoRoute(
   builder: (context, state) {
     final idString = state.pathParameters['id'];
 
-    // التحقق من وجود القيمة
+    // Check if value exists
     if (idString == null || idString.isEmpty) {
       return const ErrorScreen(message: 'Product ID is required');
     }
 
-    // التحقق من صحة التحويل
+    // Check if conversion is valid
     final id = int.tryParse(idString);
     if (id == null) {
       return const ErrorScreen(message: 'Invalid Product ID');
@@ -384,12 +384,12 @@ GoRoute(
   redirect: (context, state) {
     final id = state.pathParameters['id'];
 
-    // لو الـ ID مش valid، رجع للـ home
+    // If ID is not valid, redirect to home
     if (id == null || int.tryParse(id) == null) {
       return '/';
     }
 
-    return null; // متعملش redirect
+    return null; // Don't redirect
   },
   builder: (context, state) {
     final id = int.parse(state.pathParameters['id']!);
@@ -403,13 +403,13 @@ GoRoute(
 بشكل افتراضي، الـ GoRouter **case-sensitive** في الـ paths:
 
 ```dart
-// دول routes مختلفة!
+// These are different routes!
 /user/ABC
 /user/abc
 
-// لو عايز تلغي الـ case sensitivity
+// To disable case sensitivity
 GoRouter(
-  caseSensitive: false, // هيعتبرهم نفس الـ route
+  caseSensitive: false, // Will treat them as the same route
   routes: [...],
 )
 ```
@@ -417,10 +417,10 @@ GoRouter(
 ### 4. تجنب الـ Parameters الكتيرة
 
 ```dart
-// ❌ صعب القراءة والصيانة
+// ❌ Hard to read and maintain
 '/a/:x/b/:y/c/:z/d/:w'
 
-// ✅ أفضل - استخدم query parameters للقيم الاختيارية
+// ✅ Better - use query parameters for optional values
 '/item/:id?filter=value&sort=asc'
 ```
 

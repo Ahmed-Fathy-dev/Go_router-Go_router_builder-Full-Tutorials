@@ -66,7 +66,7 @@ GoRoute(
       key: state.pageKey,
       child: const MyScreen(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        // Slide من الأسفل
+        // Slide from bottom
         const begin = Offset(0.0, 1.0);
         const end = Offset.zero;
         final tween = Tween(begin: begin, end: end)
@@ -137,7 +137,7 @@ GoRoute(
       key: state.pageKey,
       child: const MyScreen(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        // Fade + Slide
+        // Fade + Slide combined
         return FadeTransition(
           opacity: animation,
           child: SlideTransition(
@@ -198,7 +198,7 @@ class FadePage<T> extends CustomTransitionPage<T> {
         );
 }
 
-// الاستخدام
+// Usage
 GoRoute(
   path: '/page',
   pageBuilder: (context, state) {
@@ -317,17 +317,17 @@ class DirectionalSlidePage<T> extends CustomTransitionPage<T> {
 
 ```dart
 transitionsBuilder: (context, animation, secondaryAnimation, child) {
-  // animation: الصفحة الداخلة
-  // secondaryAnimation: الصفحة الخارجة
+  // animation: incoming page
+  // secondaryAnimation: outgoing page
 
   return SlideTransition(
-    // الصفحة الداخلة بتيجي من اليمين
+    // Incoming page slides from right
     position: Tween<Offset>(
       begin: const Offset(1, 0),
       end: Offset.zero,
     ).animate(animation),
     child: SlideTransition(
-      // الصفحة الحالية بتتحرك لليسار شوية
+      // Current page moves slightly to the left
       position: Tween<Offset>(
         begin: Offset.zero,
         end: const Offset(-0.3, 0),
@@ -416,7 +416,7 @@ class AppPageTransitions {
   }
 }
 
-// الاستخدام في الـ Router
+// Usage in the Router
 final appRouter = GoRouter(
   routes: [
     GoRoute(
@@ -461,7 +461,7 @@ CustomTransitionPage platformPage<T>({
   required LocalKey key,
 }) {
   if (Platform.isIOS) {
-    // iOS: Cupertino style slide
+    // iOS: Cupertino style slide transition
     return CustomTransitionPage<T>(
       key: key,
       child: child,
@@ -475,7 +475,7 @@ CustomTransitionPage platformPage<T>({
       },
     );
   } else {
-    // Android/Web: Fade
+    // Android/Web: Fade transition
     return CustomTransitionPage<T>(
       key: key,
       child: child,
@@ -496,7 +496,7 @@ CustomTransitionPage platformPage<T>({
 ```dart
 pageBuilder: (context, state) {
   return CustomTransitionPage(
-    key: state.pageKey,  // 👈 مهم للـ animations
+    key: state.pageKey,  // 👈 Important for animations
     child: MyScreen(),
     ...
   );
@@ -506,27 +506,27 @@ pageBuilder: (context, state) {
 ### 2. مدة مناسبة
 
 ```dart
-// قصير جداً - مش ملحوظ
+// Too short - not noticeable
 transitionDuration: const Duration(milliseconds: 100),
 
-// مناسب
+// Appropriate duration
 transitionDuration: const Duration(milliseconds: 300),
 
-// طويل - بطيء
+// Too long - feels slow
 transitionDuration: const Duration(milliseconds: 600),
 ```
 
 ### 3. Curves مناسبة
 
 ```dart
-// للدخول
+// For entering
 Curves.easeOut
 Curves.easeOutCubic
 
-// للخروج
+// For exiting
 Curves.easeIn
 
-// للارتداد
+// For bouncing effect
 Curves.elasticOut
 Curves.bounceOut
 ```

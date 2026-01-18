@@ -7,7 +7,7 @@
 ### المشكلة بدون ShellRoute
 
 ```dart
-// ❌ كل صفحة لازم تعمل الـ Scaffold والـ BottomNav من جديد
+// Wrong ❌ Each page must rebuild the Scaffold and BottomNav
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class SearchScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: const SearchContent(),
-      bottomNavigationBar: MyBottomNav(currentIndex: 1),  // تكرار!
+      bottomNavigationBar: MyBottomNav(currentIndex: 1),  // Repetition!
     );
   }
 }
@@ -32,12 +32,12 @@ class SearchScreen extends StatelessWidget {
 ### الحل مع ShellRoute
 
 ```dart
-// ✅ الـ Shell wrapper واحد وبيتغير بس الـ child
+// Correct ✅ The Shell wrapper is single and only the child changes
 ShellRoute(
   builder: (context, state, child) {
     return Scaffold(
-      body: child,  // 👈 ده بيتغير
-      bottomNavigationBar: const MyBottomNav(),  // 👈 ده ثابت
+      body: child,  // 👈 This changes
+      bottomNavigationBar: const MyBottomNav(),  // 👈 This stays fixed
     );
   },
   routes: [
@@ -54,16 +54,16 @@ ShellRoute(
 
 ```dart
 ShellRoute(
-  // الـ builder بياخد 3 parameters
+  // The builder takes 3 parameters
   builder: (
     BuildContext context,
     GoRouterState state,
-    Widget child,  // 👈 الـ route الحالي
+    Widget child,  // 👈 The current route
   ) {
     return MyShellWidget(child: child);
   },
 
-  // الـ routes اللي جوه الـ shell
+  // The routes inside the shell
   routes: [
     GoRoute(
       path: '/tab1',
@@ -85,7 +85,7 @@ ShellRoute(
 final appRouter = GoRouter(
   initialLocation: '/home',
   routes: [
-    // الـ ShellRoute للـ Bottom Navigation
+    // The ShellRoute for Bottom Navigation
     ShellRoute(
       builder: (context, state, child) {
         return ScaffoldWithBottomNav(child: child);
@@ -110,7 +110,7 @@ final appRouter = GoRouter(
       ],
     ),
 
-    // Route خارج الـ Shell (مفيهوش Bottom Nav)
+    // Route outside the Shell (no Bottom Nav)
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
@@ -118,7 +118,7 @@ final appRouter = GoRouter(
   ],
 );
 
-// الـ Shell Widget
+// The Shell Widget
 class ScaffoldWithBottomNav extends StatelessWidget {
   final Widget child;
 
@@ -196,7 +196,7 @@ ShellRoute(
       path: '/home',
       builder: (context, state) => const HomeScreen(),
       routes: [
-        // Sub-route - هتفتح جوه الـ shell
+        // Sub-route - opens inside the shell
         GoRoute(
           path: 'notifications',  // /home/notifications
           builder: (context, state) => const NotificationsScreen(),
@@ -224,11 +224,11 @@ ShellRoute(
 أحياناً عايز route معين يفتح **خارج** الـ Shell (بدون Bottom Nav مثلاً):
 
 ```dart
-// أنشئ GlobalKey للـ Navigator الرئيسي
+// Create GlobalKey for the root Navigator
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final appRouter = GoRouter(
-  navigatorKey: _rootNavigatorKey,  // الـ root navigator
+  navigatorKey: _rootNavigatorKey,  // The root navigator
 
   routes: [
     ShellRoute(
@@ -242,12 +242,12 @@ final appRouter = GoRouter(
           path: '/profile',
           builder: (context, state) => const ProfileScreen(),
           routes: [
-            // ده هيفتح داخل الـ shell
+            // This opens inside the shell
             GoRoute(
               path: 'edit',
               builder: (context, state) => const EditProfileScreen(),
             ),
-            // ده هيفتح خارج الـ shell (full screen)
+            // This opens outside the shell (full screen)
             GoRoute(
               path: 'photo',
               parentNavigatorKey: _rootNavigatorKey,  // 👈
@@ -276,7 +276,7 @@ ShellRoute(
   routes: [...],
 )
 
-// استخدامه
+// Usage
 _shellNavigatorKey.currentState?.pop();
 ```
 
@@ -302,7 +302,7 @@ ShellRoute(
               title: const Text('الرئيسية'),
               selected: state.uri.path == '/home',
               onTap: () {
-                Navigator.pop(context);  // أغلق الـ drawer
+                Navigator.pop(context);  // Close the drawer
                 context.go('/home');
               },
             ),
@@ -405,12 +405,12 @@ ShellRoute(
 ### 1. استخدم `go()` للـ tabs
 
 ```dart
-// ✅ صح - بيمسح الـ stack
+// Correct ✅ - clears the stack
 context.go('/home');
 context.go('/search');
 
-// ⚠️ احذر - push بيضيف للـ stack
-context.push('/search');  // ممكن يسبب مشاكل
+// Warning ⚠️ - push adds to the stack
+context.push('/search');  // May cause problems
 ```
 
 ### 2. حدد الـ currentIndex صح
@@ -419,7 +419,7 @@ context.push('/search');  // ممكن يسبب مشاكل
 int _calculateSelectedIndex(BuildContext context) {
   final location = GoRouterState.of(context).uri.path;
 
-  // استخدم startsWith عشان الـ sub-routes
+  // Use startsWith for sub-routes
   if (location.startsWith('/home')) return 0;
   if (location.startsWith('/search')) return 1;
 
@@ -432,7 +432,7 @@ int _calculateSelectedIndex(BuildContext context) {
 ```dart
 GoRouter(
   routes: [
-    // Routes مع Shell
+    // Routes with Shell
     ShellRoute(
       builder: ...,
       routes: [
@@ -441,7 +441,7 @@ GoRouter(
       ],
     ),
 
-    // Routes بدون Shell
+    // Routes without Shell
     GoRoute(path: '/login', ...),
     GoRoute(path: '/onboarding', ...),
     GoRoute(path: '/full-screen-video', ...),

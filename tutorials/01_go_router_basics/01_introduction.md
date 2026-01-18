@@ -41,36 +41,36 @@ Navigator.push(
 
 ### Navigator 1.0 (الطريقة القديمة)
 ```dart
-// الانتقال لصفحة
+// Navigate to a page
 Navigator.push(
   context,
   MaterialPageRoute(builder: (context) => DetailsScreen()),
 );
 
-// الرجوع
+// Go back
 Navigator.pop(context);
 
-// مشاكل:
-// - مفيش URL واضح
-// - Deep Linking صعب
-// - الويب مش بيشتغل صح
+// Problems:
+// - No clear URL
+// - Deep Linking is difficult
+// - Web doesn't work correctly
 ```
 
 ### GoRouter (الطريقة الجديدة)
 ```dart
-// الانتقال لصفحة
+// Navigate to a page
 context.go('/details/123');
 
-// أو
+// Or
 context.push('/details/123');
 
-// الرجوع
+// Go back
 context.pop();
 
-// مميزات:
-// - URL واضح ومفهوم
-// - Deep Linking بيشتغل تلقائي
-// - الويب بيشتغل تمام
+// Advantages:
+// - Clear and understandable URL
+// - Deep Linking works automatically
+// - Web works perfectly
 ```
 
 ---
@@ -83,7 +83,7 @@ context.pop();
 ```dart
 final router = GoRouter(
   routes: [
-    // هنا بتحط الـ routes
+    // Define your routes here
   ],
 );
 ```

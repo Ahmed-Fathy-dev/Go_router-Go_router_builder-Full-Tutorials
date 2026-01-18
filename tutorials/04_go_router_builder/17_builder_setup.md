@@ -29,9 +29,9 @@ flutter pub get
 lib/
 ├── main.dart
 ├── router/
-│   ├── app_router.dart      # الـ GoRouter configuration
+│   ├── app_router.dart      # The GoRouter configuration
 │   └── routes/
-│       ├── routes.dart       # الـ route classes
+│       ├── routes.dart       # The route classes
 │       └── routes.g.dart     # Generated file
 └── screens/
     ├── home_screen.dart
@@ -51,10 +51,10 @@ lib/
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-// ⚠️ مهم جداً: أضف الـ part directive
+// ⚠️ Important: Add the part directive
 part 'routes.g.dart';
 
-// الـ Home Route
+// The Home Route
 @TypedGoRoute<HomeRoute>(path: '/')
 class HomeRoute extends GoRouteData {
   const HomeRoute();
@@ -65,7 +65,7 @@ class HomeRoute extends GoRouteData {
   }
 }
 
-// الـ Products Route
+// The Products Route
 @TypedGoRoute<ProductsRoute>(path: '/products')
 class ProductsRoute extends GoRouteData {
   const ProductsRoute();
@@ -76,7 +76,7 @@ class ProductsRoute extends GoRouteData {
   }
 }
 
-// Product Details مع path parameter
+// Product Details with path parameter
 @TypedGoRoute<ProductRoute>(path: '/product/:id')
 class ProductRoute extends GoRouteData {
   const ProductRoute({required this.id});
@@ -93,10 +93,10 @@ class ProductRoute extends GoRouteData {
 ### الخطوة 2: تشغيل الـ Code Generator
 
 ```bash
-# تشغيل مرة واحدة
+# Run once
 dart run build_runner build
 
-# أو تشغيل مستمر (يراقب التغييرات)
+# Or run continuously (watches for changes)
 dart run build_runner watch
 ```
 
@@ -139,7 +139,7 @@ extension $HomeRouteExtension on HomeRoute {
   void replace(BuildContext context) => context.replace(location);
 }
 
-// ... المزيد من الـ extensions
+// ... More extensions
 ```
 
 ---
@@ -156,7 +156,7 @@ final appRouter = GoRouter(
   initialLocation: '/',
   debugLogDiagnostics: true,
 
-  // استخدم الـ $appRoutes المولد
+  // Use the generated $appRoutes
   routes: $appRoutes,
 );
 ```
@@ -191,13 +191,13 @@ class MyApp extends StatelessWidget {
 ## التنقل باستخدام الـ Routes
 
 ```dart
-// بدل context.go('/products')
+// Instead of context.go('/products')
 const ProductsRoute().go(context);
 
-// بدل context.push('/product/123')
+// Instead of context.push('/product/123')
 ProductRoute(id: 123).push(context);
 
-// بدل context.go('/product/456')
+// Instead of context.go('/product/456')
 const ProductRoute(id: 456).go(context);
 ```
 
@@ -357,16 +357,16 @@ class ProductsScreen extends StatelessWidget {
 ## أوامر build_runner المفيدة
 
 ```bash
-# تشغيل مرة واحدة
+# Run once
 dart run build_runner build
 
-# تشغيل مع مسح الملفات القديمة
+# Run with deleting old files
 dart run build_runner build --delete-conflicting-outputs
 
-# تشغيل مستمر (يراقب التغييرات)
+# Run continuously (watches for changes)
 dart run build_runner watch
 
-# مسح الملفات المولدة
+# Delete generated files
 dart run build_runner clean
 ```
 
@@ -377,7 +377,7 @@ dart run build_runner clean
 ### 1. لا تنسى الـ part directive
 
 ```dart
-// ⚠️ لازم تكون موجودة
+// ⚠️ Must be present
 part 'routes.g.dart';
 ```
 
@@ -397,7 +397,7 @@ dart run build_runner watch
 ### 4. تعامل مع أخطاء الـ Generation
 
 ```bash
-# لو حصل error، جرب
+# If an error occurs, try
 dart run build_runner clean
 dart run build_runner build --delete-conflicting-outputs
 ```

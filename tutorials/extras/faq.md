@@ -6,16 +6,16 @@
 
 **`go()`**: بيمسح الـ navigation stack ويروح للصفحة المطلوبة.
 ```dart
-// Stack قبل: [Home, Products, Details]
+// Stack before: [Home, Products, Details]
 context.go('/settings');
-// Stack بعد: [Settings]
+// Stack after: [Settings]
 ```
 
 **`push()`**: بيضيف الصفحة فوق الـ stack الحالي.
 ```dart
-// Stack قبل: [Home, Products]
+// Stack before: [Home, Products]
 context.push('/details');
-// Stack بعد: [Home, Products, Details]
+// Stack after: [Home, Products, Details]
 ```
 
 ---
@@ -48,15 +48,15 @@ context.push('/details');
 ### س: إزاي أرجع قيمة من صفحة؟
 
 ```dart
-// في الصفحة الأصلية
+// In the original page
 final result = await context.push<bool>('/confirm');
 if (result == true) {
-  // تم التأكيد
+  // Confirmed
 }
 
-// في صفحة التأكيد
-context.pop(true);   // تأكيد
-context.pop(false);  // إلغاء
+// In the confirmation page
+context.pop(true);   // Confirm
+context.pop(false);  // Cancel
 ```
 
 ---
@@ -103,7 +103,7 @@ GoRouter(
   routes: [
     StatefulShellRoute.indexedStack(...),
 
-    // Route خارج الـ Shell
+    // Route outside the Shell
     GoRoute(
       path: '/full-screen',
       parentNavigatorKey: _rootNavigatorKey,
@@ -136,10 +136,10 @@ GoRouter(
 ### س: إزاي أمرر object كامل؟
 
 ```dart
-// باستخدام extra
+// Using extra
 context.go('/product/123', extra: productObject);
 
-// استقباله
+// Receiving it
 final product = state.extra as Product?;
 ```
 
@@ -151,7 +151,7 @@ final product = state.extra as Product?;
 
 ```dart
 GoRouter(
-  refreshListenable: authNotifier,  // للتحديث التلقائي
+  refreshListenable: authNotifier,  // For auto refresh
   redirect: (context, state) {
     final isLoggedIn = AuthService.isLoggedIn;
     final isAuthRoute = state.uri.path == '/login';
@@ -174,12 +174,12 @@ GoRouter(
 ### س: إزاي أرجع المستخدم للصفحة اللي كان فيها بعد Login؟
 
 ```dart
-// في redirect
+// In redirect
 if (!isLoggedIn) {
   return '/login?redirect=${Uri.encodeComponent(state.uri.toString())}';
 }
 
-// في Login Screen
+// In Login Screen
 class LoginScreen extends StatelessWidget {
   final String? redirectTo;
 
@@ -226,10 +226,10 @@ StatefulShellRoute.indexedStack(
 ### س: الـ build_runner مش بيولد الملفات؟
 
 ```bash
-# امسح الـ cache
+# Clear the cache
 dart run build_runner clean
 
-# شغل تاني
+# Run again
 dart run build_runner build --delete-conflicting-outputs
 ```
 
@@ -238,12 +238,12 @@ dart run build_runner build --delete-conflicting-outputs
 ### س: إزاي أعرف الـ location الحالي؟
 
 ```dart
-// الـ URI كامل
+// The full URI
 final uri = GoRouterState.of(context).uri;
 print(uri.path);           // /products/123
 print(uri.queryParameters); // {sort: price}
 
-// أو
+// Or
 final router = GoRouter.of(context);
 print(router.state.uri);
 ```
@@ -254,7 +254,7 @@ print(router.state.uri);
 
 ```dart
 GoRouter(
-  debugLogDiagnostics: true,  // هيطبع كل الـ navigation
+  debugLogDiagnostics: true,  // Will print all navigation
   routes: [...],
 )
 ```

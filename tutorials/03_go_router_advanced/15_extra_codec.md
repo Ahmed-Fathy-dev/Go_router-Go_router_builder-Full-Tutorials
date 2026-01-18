@@ -5,18 +5,18 @@
 الـ `extra` هو طريقة لتمرير أي object للصفحة التالية بدون ما يظهر في الـ URL.
 
 ```dart
-// تمرير object
+// Pass object
 context.go('/product/123', extra: productObject);
 
-// استقباله
+// Receive it
 GoRoute(
   path: '/product/:id',
   builder: (context, state) {
     final product = state.extra as Product?;
     final id = state.pathParameters['id']!;
 
-    // لو الـ extra موجود، استخدمه
-    // لو لأ، اجلب البيانات من الـ API
+    // If extra exists, use it
+    // If not, fetch data from API
     return ProductScreen(
       product: product,
       id: id,
@@ -179,7 +179,7 @@ class _AppEncoder extends Converter<Object?, Object?> {
       };
     }
 
-    // للأنواع البسيطة
+    // For simple types
     return input;
   }
 }
@@ -211,7 +211,7 @@ class _AppDecoder extends Converter<Object?, Object?> {
   }
 }
 
-// Router
+// The Router
 final appRouter = GoRouter(
   extraCodec: const AppExtraCodec(),
   routes: [
@@ -267,7 +267,7 @@ GoRouter(
 ```dart
 GoRouter(
   onEnter: (context, state) {
-    // Track page view
+    // Track the page view
     Analytics.logPageView(
       pageName: state.name ?? state.uri.path,
       parameters: state.pathParameters,
@@ -287,7 +287,7 @@ GoRouter(
     final ref = state.uri.queryParameters['ref'];
 
     if (ref != null) {
-      // Process referral in background
+      // Process the referral in background
       ReferralService.processCode(ref);
     }
 
@@ -302,7 +302,7 @@ GoRouter(
 ```dart
 GoRouter(
   onEnter: (context, state) {
-    // منع الدخول أثناء عملية حفظ
+    // Block entry during save operation
     if (SavingState.isSaving) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('جاري الحفظ...')),
@@ -321,12 +321,12 @@ GoRouter(
 ```dart
 GoRouter(
   onEnter: (context, state) {
-    // Handle OAuth callback
+    // Handle the OAuth callback
     if (state.uri.path == '/oauth/callback') {
       final code = state.uri.queryParameters['code'];
 
       if (code != null) {
-        // Process in background, redirect to home
+        // Process in background and redirect to home
         AuthService.processOAuthCode(code);
 
         return EnterResult.blockThen(() {
@@ -368,7 +368,7 @@ GoRouter(
 GoRoute(
   path: '/edit/:id',
   onExit: (context, state) async {
-    // لو فيه تغييرات مش محفوظة
+    // If there are unsaved changes
     if (hasUnsavedChanges) {
       final shouldLeave = await showDialog<bool>(
         context: context,
@@ -391,7 +391,7 @@ GoRoute(
       return shouldLeave ?? false;
     }
 
-    return true;  // اسمح بالخروج
+    return true;  // Allow exit
   },
   builder: (context, state) => EditScreen(id: state.pathParameters['id']!),
 )
@@ -405,16 +405,16 @@ GoRoute(
 final appRouter = GoRouter(
   extraCodec: const AppExtraCodec(),
 
-  // onEnter للـ analytics والـ deep link processing
+  // onEnter for analytics and deep link processing
   onEnter: (context, state) {
-    // Log navigation
+    // Log the navigation
     debugPrint('Entering: ${state.uri}');
 
     // Handle special deep links
     if (state.uri.path == '/verify-email') {
       final token = state.uri.queryParameters['token'];
       if (token != null) {
-        // Process verification
+        // Process the verification
         AuthService.verifyEmail(token);
 
         // Show message and redirect
@@ -434,7 +434,7 @@ final appRouter = GoRouter(
   },
 
   redirect: (context, state) {
-    // Normal auth redirect
+    // Normal authentication redirect
     final isLoggedIn = AuthService.isLoggedIn;
     if (!isLoggedIn && state.uri.path.startsWith('/profile')) {
       return '/login';
@@ -460,7 +460,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/edit/:id',
       onExit: (context, state) async {
-        // Confirm before leaving
+        // Confirm before leaving the page
         return await showExitConfirmDialog(context);
       },
       builder: (context, state) => EditScreen(

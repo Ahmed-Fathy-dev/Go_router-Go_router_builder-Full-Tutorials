@@ -42,7 +42,7 @@ final router = GoRouter(
 );
 
 // Deep link: myapp://product/123
-// هيفتح ProductScreen(id: '123')
+// Opens ProductScreen(id: '123')
 ```
 
 ---
@@ -65,7 +65,7 @@ final router = GoRouter(
         <data android:scheme="myapp" />
       </intent-filter>
 
-      <!-- App Links with HTTPS (يحتاج verification) -->
+      <!-- App Links with HTTPS (requires verification) -->
       <intent-filter android:autoVerify="true">
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
@@ -162,7 +162,7 @@ xcrun simctl openurl booted "myapp://product/123"
 
 ```dart
 GoRouter(
-  // مفيش إعداد إضافي للـ web
+  // No additional setup needed for web
   routes: [...],
 );
 ```
@@ -197,16 +197,16 @@ void main() {
 
 ```dart
 GoRouter(
-  initialLocation: '/home',  // الـ default location
+  initialLocation: '/home',  // The default location
   routes: [...],
 );
 
-// لو التطبيق اتفتح من deep link:
+// If app opened from deep link:
 // myapp://product/123
-// -> هيروح للـ /product/123 مش /home
+// -> Goes to /product/123 not /home
 
-// لو التطبيق اتفتح عادي:
-// -> هيروح للـ /home
+// If app opened normally:
+// -> Goes to /home
 ```
 
 ---
@@ -222,24 +222,24 @@ class DeepLinkHandler {
   final AppLinks _appLinks = AppLinks();
 
   Future<void> init() async {
-    // الـ link اللي فتح التطبيق
+    // The link that opened the app
     final initialLink = await _appLinks.getInitialLink();
     if (initialLink != null) {
       _handleDeepLink(initialLink);
     }
 
-    // الـ links اللي بتيجي والتطبيق مفتوح
+    // Links that arrive while app is open
     _appLinks.uriLinkStream.listen((uri) {
       _handleDeepLink(uri);
     });
   }
 
   void _handleDeepLink(Uri uri) {
-    // GoRouter بيتعامل معاه تلقائي
-    // بس لو محتاج تعمل حاجة إضافية:
+    // GoRouter handles it automatically
+    // But if you need to do something extra:
     print('Deep link received: $uri');
 
-    // مثلاً: Track analytics
+    // Example: Track analytics
     Analytics.logDeepLink(uri.toString());
   }
 }
@@ -252,12 +252,12 @@ class DeepLinkHandler {
 ```dart
 GoRouter(
   redirect: (context, state) {
-    // لو جه من deep link لصفحة محمية
+    // If came from deep link to protected page
     if (state.uri.path.startsWith('/admin') && !isAdmin) {
       return '/login?redirect=${state.uri}';
     }
 
-    // لو جه من deep link قديم
+    // If came from old deep link
     if (state.uri.path.startsWith('/old-path')) {
       return state.uri.path.replaceFirst('/old-path', '/new-path');
     }
@@ -303,9 +303,9 @@ final appRouter = GoRouter(
     final isProtectedPath = state.uri.path.startsWith('/profile') ||
                             state.uri.path.startsWith('/orders');
 
-    // Deep link لصفحة محمية
+    // Deep link to protected page
     if (!isLoggedIn && isProtectedPath) {
-      // احفظ الـ deep link عشان نرجعله بعد Login
+      // Save the deep link to redirect after Login
       return '/login?redirect=${Uri.encodeComponent(state.uri.toString())}';
     }
 
@@ -323,7 +323,7 @@ final appRouter = GoRouter(
       path: '/product/:id',
       builder: (context, state) {
         final id = state.pathParameters['id']!;
-        // ممكن يجي من deep link مع extra query params
+        // May come from deep link with extra query params
         final ref = state.uri.queryParameters['ref'];
 
         if (ref != null) {
@@ -424,7 +424,7 @@ testWidgets('deep link opens product screen', (tester) async {
 
 ```dart
 GoRouter(
-  debugLogDiagnostics: true,  // هيطبع الـ deep links في الـ console
+  debugLogDiagnostics: true,  // Prints deep links in the console
   routes: [...],
 )
 ```
@@ -434,7 +434,7 @@ GoRouter(
 ```dart
 GoRouter(
   onException: (context, state, router) {
-    // Deep link لصفحة مش موجودة
+    // Deep link to non-existent page
     Analytics.logInvalidDeepLink(state.uri.toString());
     router.go('/');
   },
@@ -445,14 +445,14 @@ GoRouter(
 ### 3. Share Links
 
 ```dart
-// إنشاء link للمشاركة
+// Create link for sharing
 String createShareLink(String productId) {
   return 'https://myapp.com/product/$productId';
-  // أو
+  // Or
   return 'myapp://product/$productId';
 }
 
-// استخدامه
+// Usage
 Share.share(createShareLink(product.id));
 ```
 

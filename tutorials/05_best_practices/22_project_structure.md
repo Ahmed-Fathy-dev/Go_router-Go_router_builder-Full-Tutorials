@@ -5,7 +5,7 @@
 ```
 lib/
 ├── main.dart
-├── router.dart           # كل الـ routing في ملف واحد
+├── router.dart           # All routing in one file
 └── screens/
     ├── home_screen.dart
     ├── product_screen.dart
@@ -41,9 +41,9 @@ final appRouter = GoRouter(
 lib/
 ├── main.dart
 ├── router/
-│   ├── app_router.dart       # الـ GoRouter configuration
-│   ├── route_names.dart      # أسماء الـ routes كـ constants
-│   └── routes.dart           # تعريف الـ routes
+│   ├── app_router.dart       # GoRouter configuration
+│   ├── route_names.dart      # Route names as constants
+│   └── routes.dart           # Define routes
 └── features/
     ├── home/
     │   └── home_screen.dart
@@ -155,7 +155,7 @@ lib/
 ├── router/
 │   ├── app_router.dart
 │   └── routes/
-│       ├── routes.dart         # الملف الرئيسي
+│       ├── routes.dart         # Main file
 │       ├── routes.g.dart       # Generated
 │       ├── home_routes.dart
 │       ├── product_routes.dart
@@ -200,7 +200,7 @@ class HomeRoute extends GoRouteData {
 ### 1. فصل الـ Router عن الـ Routes
 
 ```dart
-// ❌ غلط - كله في ملف واحد كبير
+// Wrong ❌ - everything in one big file
 final router = GoRouter(
   redirect: (context, state) { ... },
   routes: [
@@ -210,7 +210,7 @@ final router = GoRouter(
   ],
 );
 
-// ✅ صح - مفصول
+// Correct ✅ - separated
 // app_router.dart
 final appRouter = GoRouter(
   redirect: authRedirect,
@@ -228,11 +228,11 @@ final appRoutes = [
 ### 2. استخدم Route Names كـ Constants
 
 ```dart
-// ❌ غلط - strings في كل مكان
+// Wrong ❌ - strings everywhere
 context.goNamed('product-details');
-context.goNamed('product_details');  // أوبس، spelling مختلف!
+context.goNamed('product_details');  // Oops, different spelling!
 
-// ✅ صح - constants
+// Correct ✅ - constants
 abstract class RouteNames {
   static const productDetails = 'product-details';
 }
@@ -269,7 +269,7 @@ class AppNavigator {
   }
 }
 
-// الاستخدام
+// Usage
 AppNavigator.goProductDetails(context, productId: '123');
 ```
 
@@ -304,7 +304,7 @@ String? adminGuard(BuildContext context, GoRouterState state) {
 // app_router.dart
 final appRouter = GoRouter(
   redirect: (context, state) {
-    // تنفيذ الـ guards بالترتيب
+    // Execute guards in order
     return authGuard(context, state) ??
            adminGuard(context, state);
   },
@@ -320,7 +320,7 @@ final appRouter = GoRouter(
 lib/
 ├── features/
 │   ├── products/
-│   │   ├── routes.dart          # Routes الخاصة بالـ feature
+│   │   ├── routes.dart          # Routes for this feature
 │   │   ├── screens/
 │   │   │   ├── products_screen.dart
 │   │   │   └── product_details_screen.dart
@@ -336,7 +336,7 @@ lib/
 │           └── auth_service.dart
 │
 └── router/
-    └── app_router.dart          # يجمع كل الـ routes
+    └── app_router.dart          # Combines all routes
 ```
 
 ```dart

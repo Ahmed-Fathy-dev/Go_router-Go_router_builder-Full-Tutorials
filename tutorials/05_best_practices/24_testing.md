@@ -7,7 +7,7 @@
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mocktail: ^1.0.0  # للـ mocking
+  mocktail: ^1.0.0  # For mocking
 ```
 
 ---
@@ -343,7 +343,7 @@ Widget createTestApp(GoRouter router) {
   return MaterialApp.router(routerConfig: router);
 }
 
-// الاستخدام
+// Usage
 testWidgets('test with helper', (tester) async {
   final router = createTestRouter(
     initialLocation: '/profile',

@@ -35,7 +35,7 @@ StatefulShellRoute.indexedStack(
     return ScaffoldWithNavBar(navigationShell: navigationShell);
   },
   branches: [
-    // Branch A - الرئيسية
+    // Branch A - Home
     StatefulShellBranch(
       routes: [
         GoRoute(
@@ -53,7 +53,7 @@ StatefulShellRoute.indexedStack(
       ],
     ),
 
-    // Branch B - البحث
+    // Branch B - Search
     StatefulShellBranch(
       routes: [
         GoRoute(
@@ -63,7 +63,7 @@ StatefulShellRoute.indexedStack(
       ],
     ),
 
-    // Branch C - الملف الشخصي
+    // Branch C - Profile
     StatefulShellBranch(
       routes: [
         GoRoute(
@@ -87,13 +87,13 @@ final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/home',
   routes: [
-    // الـ Stateful Shell للـ Bottom Navigation
+    // The Stateful Shell for Bottom Navigation
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return ScaffoldWithNavBar(navigationShell: navigationShell);
       },
       branches: [
-        // الرئيسية
+        // Home
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -112,7 +112,7 @@ final appRouter = GoRouter(
           ],
         ),
 
-        // التصنيفات
+        // Categories
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -131,7 +131,7 @@ final appRouter = GoRouter(
           ],
         ),
 
-        // السلة
+        // Cart
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -141,7 +141,7 @@ final appRouter = GoRouter(
           ],
         ),
 
-        // حسابي
+        // My Account
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -163,7 +163,7 @@ final appRouter = GoRouter(
       ],
     ),
 
-    // Routes خارج الـ Shell
+    // Routes outside the Shell
     GoRoute(
       path: '/login',
       parentNavigatorKey: _rootNavigatorKey,
@@ -192,14 +192,14 @@ class ScaffoldWithNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,  // 👈 ده بيعرض الـ branch الحالي
+      body: navigationShell,  // 👈 This displays the current branch
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: (index) {
-          // 👈 الـ method دي بتنقل بين الـ branches
+          // 👈 This method navigates between branches
           navigationShell.goBranch(
             index,
-            // لو ضغط على نفس الـ tab، ارجعه للـ initial location
+            // If tapped on the same tab, return to initial location
             initialLocation: index == navigationShell.currentIndex,
           );
         },
@@ -239,8 +239,8 @@ class ScaffoldWithNavBar extends StatelessWidget {
 
 ```dart
 navigationShell.goBranch(
-  index,                    // رقم الـ branch (0, 1, 2, ...)
-  initialLocation: false,   // هل يروح للـ initial location؟
+  index,                    // Branch number (0, 1, 2, ...)
+  initialLocation: false,   // Should it go to initial location?
 );
 ```
 
@@ -249,13 +249,13 @@ navigationShell.goBranch(
 - `initialLocation: true` - يروح للـ initial location بتاع الـ branch (يمسح الـ stack)
 
 ```dart
-// مثال: لما المستخدم يضغط على الـ tab الحالي
+// Example: when user taps on the current tab
 onDestinationSelected: (index) {
   if (index == navigationShell.currentIndex) {
-    // ضغط على نفس الـ tab -> ارجعه للأول
+    // Tapped on same tab -> return to start
     navigationShell.goBranch(index, initialLocation: true);
   } else {
-    // tab مختلف -> انتقل وحافظ على الـ state
+    // Different tab -> navigate and preserve state
     navigationShell.goBranch(index);
   }
 }
@@ -284,7 +284,7 @@ StatefulShellRoute.indexedStack(
   ],
 )
 
-// استخدامه
+// Usage
 _homeNavigatorKey.currentState?.pop();
 ```
 
@@ -319,7 +319,7 @@ StatefulShellRoute.indexedStack(
 ```dart
 StatefulShellRoute(
   navigatorContainerBuilder: (context, navigationShell, children) {
-    // children هي List<Widget> لكل branch
+    // children is List<Widget> for each branch
     return AnimatedBranchContainer(
       currentIndex: navigationShell.currentIndex,
       children: children,
@@ -379,7 +379,7 @@ class _HomeScreenState extends State<HomeScreen>
     with AutomaticKeepAliveClientMixin {
   final ScrollController _scrollController = ScrollController();
 
-  // ده بيخلي الـ widget يتحفظ
+  // This keeps the widget alive
   @override
   bool get wantKeepAlive => true;
 
@@ -391,7 +391,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);  // مهم لـ AutomaticKeepAliveClientMixin
+    super.build(context);  // Important for AutomaticKeepAliveClientMixin
 
     return ListView.builder(
       controller: _scrollController,
@@ -412,13 +412,13 @@ class _HomeScreenState extends State<HomeScreen>
 ## التنقل داخل Branch
 
 ```dart
-// التنقل داخل نفس الـ branch
-context.go('/home/product/123');  // push داخل الـ home branch
+// Navigation inside the same branch
+context.go('/home/product/123');  // push inside the home branch
 
-// أو
+// Or
 context.push('/home/product/123');
 
-// الرجوع
+// Go back
 context.pop();
 ```
 
@@ -440,12 +440,12 @@ GoRouter(
               path: '/home',
               builder: (context, state) => const HomeScreen(),
               routes: [
-                // ده داخل الـ shell
+                // This is inside the shell
                 GoRoute(
                   path: 'product/:id',
                   builder: (context, state) => ProductScreen(...),
                 ),
-                // ده خارج الـ shell (full screen)
+                // This is outside the shell (full screen)
                 GoRoute(
                   path: 'product/:id/fullscreen',
                   parentNavigatorKey: _rootNavigatorKey,  // 👈
@@ -472,7 +472,7 @@ StatefulShellRoute.indexedStack(
   branches: [
     StatefulShellBranch(
       routes: [
-        // Shell جوه الـ home branch
+        // Shell inside the home branch
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
             return NestedShell(navigationShell: navigationShell);
@@ -508,7 +508,7 @@ class _MyScreenState extends State<MyScreen>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);  // مهم!
+    super.build(context);  // Important!
     return ...;
   }
 }

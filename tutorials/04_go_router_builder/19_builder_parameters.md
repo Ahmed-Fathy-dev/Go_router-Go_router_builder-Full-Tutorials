@@ -19,7 +19,7 @@
 class UserRoute extends GoRouteData {
   const UserRoute({required this.userId});
 
-  final String userId;  // 👈 لازم يكون نفس الاسم في الـ path
+  final String userId;  // 👈 Must match the name in the path
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
@@ -27,7 +27,7 @@ class UserRoute extends GoRouteData {
   }
 }
 
-// الاستخدام
+// Usage
 UserRoute(userId: '123').go(context);
 // URL: /user/123
 ```
@@ -51,7 +51,7 @@ class OrderRoute extends GoRouteData {
   }
 }
 
-// الاستخدام
+// Usage
 OrderRoute(userId: '123', orderId: '456').go(context);
 // URL: /user/123/order/456
 ```
@@ -88,7 +88,7 @@ class SearchRoute extends GoRouteData {
   }
 }
 
-// الاستخدام
+// Usage
 SearchRoute(
   query: 'flutter',
   category: 'books',
@@ -100,15 +100,15 @@ SearchRoute(
 ### Nullable vs Non-nullable
 
 ```dart
-// Optional (nullable) - مش هيظهر في الـ URL لو null
+// Optional (nullable) - Won't appear in URL if null
 final String? category;
 
-// Required with default - هيظهر في الـ URL دايماً
+// Required with default - Will always appear in URL
 final int page = 1;
 
-// Required without default - لازم يتحدد
-// ⚠️ مينفعش يكون required في query parameters
-// لازم يكون في الـ path أو يكون nullable أو عنده default
+// Required without default - Must be specified
+// ⚠️ Cannot be required in query parameters
+// Must be in the path, be nullable, or have a default
 ```
 
 ---
@@ -122,24 +122,24 @@ final int page = 1;
 class ProductRoute extends GoRouteData {
   const ProductRoute({
     required this.id,
-    this.$extra,  // 👈 لاحظ الـ $ في الأول
+    this.$extra,  // 👈 Note the $ prefix
   });
 
   final int id;
-  final Product? $extra;  // الـ object الكامل
+  final Product? $extra;  // The full object
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return ProductScreen(
       id: id,
-      product: $extra,  // لو موجود، استخدمه
+      product: $extra,  // If available, use it
     );
   }
 }
 
-// الاستخدام
+// Usage
 ProductRoute(id: 123, $extra: product).go(context);
-// URL: /product/123 (الـ product object مش ظاهر)
+// URL: /product/123 (the product object is not visible)
 ```
 
 ---
@@ -186,7 +186,7 @@ class ListRoute extends GoRouteData {
   }
 }
 
-// الاستخدام
+// Usage
 ListRoute(sortOrder: SortOrder.desc, status: Status.active).go(context);
 // URL: /list?sortOrder=desc&status=active
 ```
@@ -210,7 +210,7 @@ class FilterRoute extends GoRouteData {
   }
 }
 
-// الاستخدام
+// Usage
 FilterRoute(
   ids: [1, 2, 3],
   tags: {'flutter', 'dart'},
@@ -251,11 +251,11 @@ class ProductsRoute extends GoRouteData {
   }
 }
 
-// بدون parameters - كل القيم default
+// Without parameters - all values are default
 const ProductsRoute().go(context);
 // URL: /products?page=1&perPage=20&sortBy=popularity&ascending=true
 
-// مع بعض الـ parameters
+// With some parameters
 ProductsRoute(page: 2, categories: ['electronics']).go(context);
 // URL: /products?page=2&perPage=20&sortBy=popularity&ascending=true&categories=electronics
 ```
@@ -270,9 +270,9 @@ ProductsRoute(page: 2, categories: ['electronics']).go(context);
 - ✅ الـ URL لازم يكون معبر (SEO)
 
 ```dart
-// ✅ صح
-/product/123           // الـ ID أساسي
-/user/ahmed/posts      // الـ username أساسي
+// ✅ Correct
+/product/123           // The ID is essential
+/user/ahmed/posts      // The username is essential
 ```
 
 ### استخدم Query Parameters لو:
@@ -281,7 +281,7 @@ ProductsRoute(page: 2, categories: ['electronics']).go(context);
 - ✅ للـ pagination
 
 ```dart
-// ✅ صح
+// ✅ Correct
 /products?category=phones&sort=price
 /search?q=flutter&page=2
 ```
@@ -360,7 +360,7 @@ class ProductDetailsRoute extends GoRouteData {
   // Query parameter
   final bool showReviews;
 
-  // Extra - the full product object
+  // Extra - The full product object
   final Product? $extra;
 
   @override

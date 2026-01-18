@@ -33,15 +33,15 @@ flutter pub get
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
-// استورد الـ screens بتاعتك
+// Import your screens
 import '../screens/home_screen.dart';
 import '../screens/details_screen.dart';
 
 final GoRouter appRouter = GoRouter(
-  // الصفحة الأولى اللي هتفتح
+  // First page to open
   initialLocation: '/',
 
-  // قائمة الـ routes
+  // Routes list
   routes: [
     GoRoute(
       path: '/',
@@ -78,7 +78,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      // هنا بنستخدم الـ router
+      // Use the router here
       routerConfig: appRouter,
     );
   }
@@ -96,9 +96,9 @@ class MyApp extends StatelessWidget {
 
 ```dart
 GoRouter(
-  initialLocation: '/',  // هيفتح على الـ Home
-  // أو
-  initialLocation: '/login',  // هيفتح على صفحة Login
+  initialLocation: '/',  // Opens on Home
+  // Or:
+  initialLocation: '/login',  // Opens on Login page
   routes: [...],
 )
 ```
@@ -121,7 +121,7 @@ GoRouter(
 
 ```dart
 GoRouter(
-  debugLogDiagnostics: true,  // مفيد جداً في الـ development
+  debugLogDiagnostics: true,  // Very useful in development
   routes: [...],
 )
 ```
@@ -138,11 +138,11 @@ GoRouter: pushing /details
 ```dart
 GoRouter(
   redirect: (context, state) {
-    // لو المستخدم مش مسجل دخول، وديه لصفحة Login
+    // If user is not logged in, redirect to Login page
     if (!isLoggedIn) {
       return '/login';
     }
-    return null;  // null يعني متعملش redirect
+    return null;  // null means no redirect
   },
   routes: [...],
 )
@@ -172,26 +172,26 @@ GoRouter(
 
 ```dart
 GoRoute(
-  // الـ path بتاع الصفحة (إجباري)
+  // Path of the page (required)
   path: '/profile',
 
-  // اسم للـ route (اختياري) - مفيد للـ named navigation
+  // Name for the route (optional) - useful for named navigation
   name: 'profile',
 
-  // الـ builder اللي بيرجع الـ Widget
+  // The builder that returns the Widget
   builder: (BuildContext context, GoRouterState state) {
     return const ProfileScreen();
   },
 
-  // routes فرعية (اختياري)
+  // Sub-routes (optional)
   routes: [
     GoRoute(
-      path: 'edit',  // هيبقى /profile/edit
+      path: 'edit',  // Will be /profile/edit
       builder: (context, state) => const EditProfileScreen(),
     ),
   ],
 
-  // redirect خاص بالـ route ده (اختياري)
+  // Route-specific redirect (optional)
   redirect: (context, state) {
     // ...
   },
@@ -208,22 +208,22 @@ GoRoute(
 GoRoute(
   path: '/user/:id',
   builder: (context, GoRouterState state) {
-    // الـ URI الكامل
+    // Full URI
     print(state.uri);  // /user/123?tab=posts
 
-    // الـ path parameters
+    // Path parameters
     print(state.pathParameters);  // {id: 123}
 
-    // الـ query parameters
+    // Query parameters
     print(state.uri.queryParameters);  // {tab: posts}
 
-    // الـ extra data (لو مررته)
+    // Extra data (if passed)
     print(state.extra);
 
-    // الـ full path pattern
+    // Full path pattern
     print(state.fullPath);  // /user/:id
 
-    // اسم الـ route (لو حددته)
+    // Route name (if specified)
     print(state.name);
 
     return UserScreen(id: state.pathParameters['id']!);
@@ -244,7 +244,7 @@ final GoRouter appRouter = GoRouter(
   initialLocation: '/',
   debugLogDiagnostics: true,
 
-  // صفحة الخطأ
+  // Error page
   errorBuilder: (context, state) => Scaffold(
     appBar: AppBar(title: const Text('خطأ')),
     body: Center(
@@ -312,7 +312,7 @@ class MyApp extends StatelessWidget {
 ### 1. استخدم `debugLogDiagnostics` في الـ Development
 ```dart
 GoRouter(
-  debugLogDiagnostics: kDebugMode,  // هيشتغل بس في الـ debug mode
+  debugLogDiagnostics: kDebugMode,  // Only works in debug mode
   routes: [...],
 )
 ```
@@ -322,7 +322,7 @@ GoRouter(
 
 ### 3. استخدم `initialLocation` بحكمة
 ```dart
-// ممكن تحددها dynamically
+// Can be set dynamically
 GoRouter(
   initialLocation: isLoggedIn ? '/' : '/login',
   routes: [...],
@@ -331,10 +331,10 @@ GoRouter(
 
 ### 4. الـ path لازم يبدأ بـ `/`
 ```dart
-// صح ✅
+// Correct ✅
 GoRoute(path: '/home', ...)
 
-// غلط ❌
+// Wrong ❌
 GoRoute(path: 'home', ...)
 ```
 

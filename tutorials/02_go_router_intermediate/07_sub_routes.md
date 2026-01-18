@@ -22,9 +22,9 @@
 GoRoute(
   path: '/settings',
   builder: (context, state) => const SettingsScreen(),
-  routes: [  // 👈 هنا الـ sub-routes
+  routes: [  // 👈 Here are the sub-routes
     GoRoute(
-      path: 'profile',  // ⚠️ لاحظ: مفيش / في الأول
+      path: 'profile',  // ⚠️ Note: no / at the beginning
       builder: (context, state) => const ProfileSettingsScreen(),
     ),
     GoRoute(
@@ -44,13 +44,13 @@ GoRoute(
 لما تروح لـ sub-route، الـ GoRouter بيعرض الصفحة الجديدة **فوق** الصفحة الأب:
 
 ```dart
-// لما تروح لـ /settings/profile
-// الـ stack هيبقى: [SettingsScreen, ProfileSettingsScreen]
+// When you go to /settings/profile
+// The stack will be: [SettingsScreen, ProfileSettingsScreen]
 context.go('/settings/profile');
 
-// لما تعمل pop
+// When you pop
 context.pop();
-// هترجع لـ /settings
+// You'll return to /settings
 ```
 
 ---
@@ -63,20 +63,20 @@ context.pop();
 final appRouter = GoRouter(
   initialLocation: '/',
   routes: [
-    // الصفحة الرئيسية
+    // Home page
     GoRoute(
       path: '/',
       name: 'home',
       builder: (context, state) => const HomeScreen(),
     ),
 
-    // المنتجات مع sub-routes
+    // Products with sub-routes
     GoRoute(
       path: '/products',
       name: 'products',
       builder: (context, state) => const ProductsScreen(),
       routes: [
-        // تفاصيل منتج
+        // Product details
         GoRoute(
           path: ':productId',  // /products/123
           name: 'product-details',
@@ -85,7 +85,7 @@ final appRouter = GoRouter(
             return ProductDetailsScreen(id: id);
           },
           routes: [
-            // مراجعات المنتج
+            // Product reviews
             GoRoute(
               path: 'reviews',  // /products/123/reviews
               name: 'product-reviews',
@@ -94,7 +94,7 @@ final appRouter = GoRouter(
                 return ProductReviewsScreen(productId: id);
               },
             ),
-            // أسئلة عن المنتج
+            // Product questions
             GoRoute(
               path: 'questions',  // /products/123/questions
               name: 'product-questions',
@@ -108,7 +108,7 @@ final appRouter = GoRouter(
       ],
     ),
 
-    // الإعدادات مع sub-routes
+    // Settings with sub-routes
     GoRoute(
       path: '/settings',
       name: 'settings',
@@ -232,7 +232,7 @@ GoRoute(
     GoRoute(
       path: 'posts',  // /user/123/posts
       builder: (context, state) {
-        // تقدر توصل للـ userId من الـ parent
+        // You can access the userId from the parent
         final userId = state.pathParameters['userId']!;
         return UserPostsScreen(userId: userId);
       },
@@ -240,7 +240,7 @@ GoRoute(
         GoRoute(
           path: ':postId',  // /user/123/posts/456
           builder: (context, state) {
-            // تقدر توصل للاتنين
+            // You can access both parameters
             final userId = state.pathParameters['userId']!;
             final postId = state.pathParameters['postId']!;
             return PostDetailsScreen(userId: userId, postId: postId);
@@ -258,20 +258,20 @@ GoRoute(
 
 ### go()
 ```dart
-// من أي مكان، روح للـ sub-route
+// From anywhere, go to the sub-route
 context.go('/settings/profile');
-// الـ Stack: [SettingsScreen, ProfileSettingsScreen]
+// The Stack: [SettingsScreen, ProfileSettingsScreen]
 
-// حتى لو كنت في صفحة تانية خالص
+// Even if you're on a completely different page
 context.go('/settings/security/change-password');
-// الـ Stack: [SettingsScreen, SecuritySettingsScreen, ChangePasswordScreen]
+// The Stack: [SettingsScreen, SecuritySettingsScreen, ChangePasswordScreen]
 ```
 
 ### push()
 ```dart
-// لو أنت في SettingsScreen
+// If you're in SettingsScreen
 context.push('/settings/profile');
-// بيضيف ProfileSettingsScreen فوق الـ stack الحالي
+// Adds ProfileSettingsScreen on top of the current stack
 ```
 
 ---
@@ -293,7 +293,7 @@ GoRoute(
       path: 'users',  // /admin/users
       builder: (context, state) => const AdminUsersScreen(),
       redirect: (context, state) {
-        // redirect إضافي للـ sub-route
+        // Additional redirect for the sub-route
         if (!hasUserManagementPermission) return '/admin';
         return null;
       },
@@ -326,7 +326,7 @@ GoRoute(
             GoRoute(
               path: 'product/:productId',
               builder: (context, state) {
-                // كل الـ parameters متاحة
+                // All parameters are available
                 final categoryId = state.pathParameters['categoryId']!;
                 final subId = state.pathParameters['subId']!;
                 final productId = state.pathParameters['productId']!;
@@ -345,7 +345,7 @@ GoRoute(
   ],
 )
 
-// النتيجة:
+// Result:
 // /shop
 // /shop/category/electronics
 // /shop/category/electronics/subcategory/phones
@@ -362,8 +362,8 @@ GoRoute(
 GoRoute(
   path: '/user/:userId/order/:orderId',
   builder: (context, state) {
-    print(state.uri.path);  // /user/123/order/456 (القيم الفعلية)
-    print(state.fullPath);  // /user/:userId/order/:orderId (الـ pattern)
+    print(state.uri.path);  // /user/123/order/456 (actual values)
+    print(state.fullPath);  // /user/:userId/order/:orderId (the pattern)
 
     return OrderScreen(...);
   },
@@ -377,21 +377,21 @@ GoRoute(
 ### 1. الـ sub-routes مش بتبدأ بـ `/`
 
 ```dart
-// ✅ صح
+// Correct ✅
 routes: [
-  GoRoute(path: 'details', ...),  // هيبقى /parent/details
+  GoRoute(path: 'details', ...),  // Will be /parent/details
 ]
 
-// ❌ غلط
+// Wrong ❌
 routes: [
-  GoRoute(path: '/details', ...),  // هيبقى route مستقل /details
+  GoRoute(path: '/details', ...),  // Will be an independent route /details
 ]
 ```
 
 ### 2. استخدم أسماء واضحة
 
 ```dart
-// ✅ أسماء توضح العلاقة
+// Correct ✅ Names that clarify the relationship
 GoRoute(
   path: '/settings',
   name: 'settings',
@@ -405,21 +405,21 @@ GoRoute(
 ### 3. متعمقش كتير
 
 ```dart
-// ⚠️ تجنب التعقيد الزيادة
-/a/b/c/d/e/f/g  // صعب في الصيانة
+// ⚠️ Avoid excessive complexity
+/a/b/c/d/e/f/g  // Hard to maintain
 
-// ✅ حاول تبقى في 2-3 levels
+// Correct ✅ Try to stay at 2-3 levels
 /shop/category/product
 ```
 
 ### 4. استخدم Sub-Routes لما يكون فيه علاقة
 
 ```dart
-// ✅ منطقي - الـ reviews تابعة للـ product
+// Correct ✅ Makes sense - reviews belong to product
 /products/:id/reviews
 
-// ❌ مش منطقي - الـ cart مش تابع للـ product
-/products/:id/cart  // الأحسن يكون /cart
+// Wrong ❌ Doesn't make sense - cart doesn't belong to product
+/products/:id/cart  // Better to use /cart
 ```
 
 ---

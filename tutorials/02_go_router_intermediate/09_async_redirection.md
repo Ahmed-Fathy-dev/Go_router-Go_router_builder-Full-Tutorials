@@ -5,7 +5,7 @@
 الـ redirect العادي **synchronous**، يعني مش بتقدر تعمل فيه `await`:
 
 ```dart
-// ❌ ده مش هيشتغل
+// Wrong ❌ This won't work
 redirect: (context, state) async {  // Error!
   final user = await AuthService.getUser();
   if (user == null) return '/login';
@@ -26,7 +26,7 @@ redirect: (context, state) async {  // Error!
 ```dart
 // Auth Service with Stream
 class StreamAuth extends ChangeNotifier {
-  // Stream controller للـ auth events
+  // Stream controller for auth events
   final StreamController<bool> _controller = StreamController<bool>.broadcast();
 
   bool _isSignedIn = false;
@@ -40,7 +40,7 @@ class StreamAuth extends ChangeNotifier {
   Stream<bool> get stream => _controller.stream;
 
   Future<void> _checkAuthStatus() async {
-    // محاكاة تحقق async
+    // Simulate async check
     await Future.delayed(const Duration(milliseconds: 500));
     _isSignedIn = false;
     _controller.add(_isSignedIn);
@@ -48,7 +48,7 @@ class StreamAuth extends ChangeNotifier {
   }
 
   Future<void> signIn(String email, String password) async {
-    // محاكاة API call
+    // Simulate API call
     await Future.delayed(const Duration(seconds: 2));
 
     _isSignedIn = true;
@@ -71,14 +71,14 @@ class StreamAuth extends ChangeNotifier {
 ```
 
 ```dart
-// استخدام الـ Stream في الـ Router
+// Using the Stream in the Router
 final streamAuth = StreamAuth();
 
 final appRouter = GoRouter(
   refreshListenable: streamAuth,
 
   redirect: (context, state) {
-    // الـ state جاهز لأن الـ Stream بيحدثه
+    // The state is ready because the Stream updates it
     final isSignedIn = streamAuth.isSignedIn;
     final isSigningIn = state.uri.path == '/login';
 
@@ -126,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       await widget.auth.signIn('user@example.com', 'password');
-      // الـ router هيعمل redirect تلقائي بسبب الـ Stream
+      // The router will redirect automatically due to the Stream
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -171,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
 لو عندك Stream جاهز، تقدر تحوله لـ Listenable:
 
 ```dart
-// Custom class لتحويل Stream لـ Listenable
+// Custom class to convert Stream to Listenable
 class GoRouterRefreshStream extends ChangeNotifier {
   late final StreamSubscription<dynamic> _subscription;
 
@@ -188,7 +188,7 @@ class GoRouterRefreshStream extends ChangeNotifier {
   }
 }
 
-// الاستخدام
+// Usage
 final authStateStream = FirebaseAuth.instance.authStateChanges();
 
 final appRouter = GoRouter(
@@ -219,10 +219,10 @@ class AppInitializer {
   static Future<void> initialize() async {
     if (isInitialized) return;
 
-    // تحميل الـ user من الـ storage
+    // Load user from storage
     currentUser = await SecureStorage.getUser();
 
-    // أي initialization تاني
+    // Any other initialization
     await Analytics.initialize();
     await RemoteConfig.fetch();
 
@@ -234,12 +234,12 @@ final appRouter = GoRouter(
   initialLocation: '/splash',
 
   redirect: (context, state) {
-    // لو مش initialized، خليه في الـ splash
+    // If not initialized, keep in splash
     if (!AppInitializer.isInitialized && state.uri.path != '/splash') {
       return '/splash';
     }
 
-    // لو initialized ولسه في الـ splash
+    // If initialized and still in splash
     if (AppInitializer.isInitialized && state.uri.path == '/splash') {
       return AppInitializer.currentUser != null ? '/' : '/login';
     }
@@ -339,7 +339,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isLoading = authState.isLoading;
       final user = authState.valueOrNull;
 
-      // لو لسه بيحمل، متعملش redirect
+      // If still loading, don't redirect
       if (isLoading) return null;
 
       final isLoggedIn = user != null;
@@ -388,7 +388,7 @@ class StreamAuthWithTimeout extends ChangeNotifier {
   Timer? _sessionTimer;
   bool _isSignedIn = false;
 
-  // مدة الـ session (20 ثانية للتجربة)
+  // Session duration (20 seconds for testing)
   static const sessionDuration = Duration(seconds: 20);
 
   bool get isSignedIn => _isSignedIn;
@@ -401,7 +401,7 @@ class StreamAuthWithTimeout extends ChangeNotifier {
     _controller.add(_isSignedIn);
     notifyListeners();
 
-    // ابدأ الـ session timer
+    // Start the session timer
     _startSessionTimer();
   }
 
@@ -424,7 +424,7 @@ class StreamAuthWithTimeout extends ChangeNotifier {
     await _signOut();
   }
 
-  // Refresh الـ session لما المستخدم يتفاعل
+  // Refresh the session when the user interacts
   void refreshSession() {
     if (_isSignedIn) {
       _startSessionTimer();
@@ -445,9 +445,9 @@ class StreamAuthWithTimeout extends ChangeNotifier {
 ### 1. استخدم Loading State
 
 ```dart
-// أثناء التحميل، اعرض loading indicator
+// During loading, show loading indicator
 if (authState.isLoading) {
-  return '/loading';  // أو null عشان يفضل في نفس المكان
+  return '/loading';  // Or null to stay in the same place
 }
 ```
 

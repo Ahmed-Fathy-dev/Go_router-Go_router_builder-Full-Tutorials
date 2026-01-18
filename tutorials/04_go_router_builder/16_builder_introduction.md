@@ -5,20 +5,20 @@
 مع GoRouter العادي، الـ navigation بيعتمد على **strings**:
 
 ```dart
-// ❌ المشاكل:
+// ❌ Problems:
 
-// 1. أخطاء الكتابة
-context.go('/prodcut/123');  // خطأ في الكتابة - مش هيتكشف إلا runtime
+// 1. Typos
+context.go('/prodcut/123');  // Typo - won't be detected until runtime
 
-// 2. نسيان parameters
-context.go('/user');  // المفروض /user/:id
+// 2. Forgetting parameters
+context.go('/user');  // Should be /user/:id
 
-// 3. أنواع خاطئة
-context.go('/product/abc');  // المفروض id يكون int
+// 3. Wrong types
+context.go('/product/abc');  // id should be int
 
-// 4. تغيير الـ path
-// لو غيرت /products لـ /items
-// لازم تعدل في كل الأماكن اللي بتستخدمه
+// 4. Changing the path
+// If you change /products to /items
+// You need to update every place that uses it
 ```
 
 ---
@@ -28,20 +28,20 @@ context.go('/product/abc');  // المفروض id يكون int
 **go_router_builder** هو package بيولد كود type-safe للـ routes:
 
 ```dart
-// ✅ المميزات:
+// ✅ Benefits:
 
 // 1. Compile-time checking
-ProductRoute(id: 123).go(context);  // الـ IDE هيساعدك
+ProductRoute(id: 123).go(context);  // The IDE will help you
 
-// 2. Parameters واضحة
-UserRoute(userId: '456').push(context);  // مش هتنسى parameter
+// 2. Clear parameters
+UserRoute(userId: '456').push(context);  // You won't forget a parameter
 
-// 3. النوع الصحيح
-ProductRoute(id: 123);  // الـ id لازم int
+// 3. Correct types
+ProductRoute(id: 123);  // The id must be int
 
-// 4. تغيير الـ path
-// غير الـ path في مكان واحد بس
-@TypedGoRoute<ProductRoute>(path: '/items/:id')  // بدل /products/:id
+// 4. Changing the path
+// Change the path in one place only
+@TypedGoRoute<ProductRoute>(path: '/items/:id')  // Instead of /products/:id
 ```
 
 ---
@@ -89,10 +89,10 @@ extension $HomeRouteExtension on HomeRoute {
 ### 4. تستخدمه
 
 ```dart
-// بدل
+// Instead of
 context.go('/');
 
-// استخدم
+// Use
 const HomeRoute().go(context);
 ```
 
@@ -103,7 +103,7 @@ const HomeRoute().go(context);
 ### بدون Builder
 
 ```dart
-// تعريف الـ routes
+// Define the routes
 final router = GoRouter(
   routes: [
     GoRoute(
@@ -123,14 +123,14 @@ final router = GoRouter(
   ],
 );
 
-// الاستخدام
+// Usage
 context.go('/user/123/order/456?details=true');
 ```
 
 ### مع Builder
 
 ```dart
-// تعريف الـ route
+// Define the route
 @TypedGoRoute<OrderRoute>(path: '/user/:userId/order/:orderId')
 class OrderRoute extends GoRouteData {
   const OrderRoute({
@@ -153,7 +153,7 @@ class OrderRoute extends GoRouteData {
   }
 }
 
-// الاستخدام
+// Usage
 const OrderRoute(
   userId: '123',
   orderId: '456',

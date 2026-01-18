@@ -30,10 +30,10 @@
 GoRoute(
   path: '/search',
   builder: (context, state) {
-    // الحصول على الـ query parameters
+    // Get query parameters
     final queryParams = state.uri.queryParameters;
 
-    // قيمة معينة
+    // Specific value
     final searchQuery = queryParams['q'];
     final sortBy = queryParams['sort'];
     final page = queryParams['page'];
@@ -53,17 +53,17 @@ GoRoute(
 GoRoute(
   path: '/products',
   builder: (context, state) {
-    // الـ URI الكامل
+    // Full URI
     print(state.uri);  // /products?category=phones&brand=samsung
 
-    // الـ path بدون query
+    // Path without query
     print(state.uri.path);  // /products
 
-    // كل الـ query parameters كـ Map
+    // All query parameters as Map
     print(state.uri.queryParameters);
     // {category: phones, brand: samsung}
 
-    // الـ query string كامل
+    // Full query string
     print(state.uri.query);  // category=phones&brand=samsung
 
     return ProductsScreen(...);
@@ -78,13 +78,13 @@ GoRoute(
 ### طريقة 1: String مباشر
 
 ```dart
-// parameter واحد
+// Single parameter
 context.go('/search?q=flutter');
 
-// أكتر من parameter
+// Multiple parameters
 context.go('/products?category=phones&brand=apple&sort=price');
 
-// مع متغيرات
+// With variables
 final query = 'flutter widgets';
 final sort = 'recent';
 context.go('/search?q=$query&sort=$sort');
@@ -93,7 +93,7 @@ context.go('/search?q=$query&sort=$sort');
 ### طريقة 2: باستخدام Uri
 
 ```dart
-// أفضل للتعامل مع القيم المعقدة
+// Better for handling complex values
 final uri = Uri(
   path: '/search',
   queryParameters: {
@@ -104,16 +104,16 @@ final uri = Uri(
 );
 
 context.go(uri.toString());
-// النتيجة: /search?q=flutter%20widgets&sort=recent&page=1
+// Result: /search?q=flutter%20widgets&sort=recent&page=1
 ```
 
 ### طريقة 3: مع Path Parameters
 
 ```dart
-// دمج الاتنين مع بعض
+// Combining both together
 context.go('/category/electronics?sort=price&order=asc');
 
-// أو باستخدام Uri
+// Or using Uri
 final uri = Uri(
   path: '/category/$categoryId',
   queryParameters: {
@@ -140,11 +140,11 @@ context.go(uri.toString());
 GoRoute(
   path: '/products',
   builder: (context, state) {
-    // queryParameters بيرجع قيمة واحدة بس
+    // queryParameters returns only one value
     final singleColor = state.uri.queryParameters['color'];
-    print(singleColor);  // green (آخر قيمة)
+    print(singleColor);  // green (last value)
 
-    // queryParametersAll بيرجع كل القيم
+    // queryParametersAll returns all values
     final allColors = state.uri.queryParametersAll['color'];
     print(allColors);  // [red, blue, green]
 
@@ -221,7 +221,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   void _applyFilters() {
-    // بناء الـ query parameters
+    // Build query parameters
     final params = <String, String>{};
 
     if (_category != null) params['category'] = _category!;
@@ -248,11 +248,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
       ),
       body: Column(
         children: [
-          // شريط الفلاتر النشطة
+          // Active filters bar
           if (_category != null || _brand != null || _inStock)
             _buildActiveFilters(),
 
-          // قائمة المنتجات
+          // Products list
           Expanded(
             child: _buildProductList(),
           ),
@@ -307,7 +307,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   Widget _buildProductList() {
-    // هنا هتجيب المنتجات من الـ API
+    // Here you would fetch products from API
     return ListView.builder(
       itemCount: 20,
       itemBuilder: (context, index) {
@@ -405,18 +405,18 @@ class _ProductsScreenState extends State<ProductsScreen> {
 القيم اللي فيها مسافات أو رموز خاصة لازم تتعمل لها encoding:
 
 ```dart
-// ❌ غلط - هيسبب مشاكل
+// ❌ Wrong - will cause problems
 context.go('/search?q=flutter widgets');
 
-// ✅ صح - باستخدام Uri
+// ✅ Correct - using Uri
 final uri = Uri(
   path: '/search',
   queryParameters: {'q': 'flutter widgets'},
 );
 context.go(uri.toString());
-// النتيجة: /search?q=flutter%20widgets
+// Result: /search?q=flutter%20widgets
 
-// ✅ صح - باستخدام Uri.encodeComponent
+// ✅ Correct - using Uri.encodeComponent
 final query = Uri.encodeComponent('flutter widgets');
 context.go('/search?q=$query');
 ```
@@ -489,7 +489,7 @@ class PaginatedListScreen extends StatelessWidget {
   }
 }
 
-// الـ Route
+// Route definition
 GoRoute(
   path: '/items',
   builder: (context, state) {
@@ -509,11 +509,11 @@ GoRoute(
 ### 1. استخدم Uri لبناء الـ URLs
 
 ```dart
-// ✅ آمن وبيعمل encoding صح
+// ✅ Safe and encodes correctly
 final uri = Uri(
   path: '/search',
   queryParameters: {
-    'q': userInput,  // حتى لو فيه رموز خاصة
+    'q': userInput,  // Even with special characters
     'page': '1',
   },
 );
@@ -523,7 +523,7 @@ context.go(uri.toString());
 ### 2. اعمل Default Values
 
 ```dart
-// ✅ دايماً وفر قيم افتراضية
+// ✅ Always provide default values
 final sortBy = params['sort'] ?? 'default';
 final page = int.tryParse(params['page'] ?? '1') ?? 1;
 ```
@@ -531,7 +531,7 @@ final page = int.tryParse(params['page'] ?? '1') ?? 1;
 ### 3. Preserve Query Parameters عند التنقل
 
 ```dart
-// لو عايز تحافظ على الفلاتر وتغير الصفحة بس
+// To preserve filters and only change page
 void goToNextPage(BuildContext context, GoRouterState state) {
   final currentParams = Map<String, String>.from(state.uri.queryParameters);
   final currentPage = int.tryParse(currentParams['page'] ?? '1') ?? 1;

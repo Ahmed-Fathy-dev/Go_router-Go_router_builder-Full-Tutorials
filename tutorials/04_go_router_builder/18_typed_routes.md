@@ -22,9 +22,9 @@ class HomeRoute extends GoRouteData {
 
 ```dart
 @TypedGoRoute<MyRoute>(
-  path: '/my-path',         // المسار (إجباري)
-  name: 'my-route',         // اسم الـ route (اختياري)
-  routes: [...],            // Sub-routes (اختياري)
+  path: '/my-path',         // The path (required)
+  name: 'my-route',         // The route name (optional)
+  routes: [...],            // Sub-routes (optional)
 )
 ```
 
@@ -38,7 +38,7 @@ class HomeRoute extends GoRouteData {
 class MyRoute extends GoRouteData {
   const MyRoute();
 
-  // الـ method الإجبارية
+  // The required method
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const MyScreen();
@@ -134,7 +134,7 @@ class CategoryRoute extends GoRouteData { ... }
 class SubcategoryRoute extends GoRouteData { ... }
 class ItemRoute extends GoRouteData { ... }
 
-// النتيجة:
+// Result:
 // /shop
 // /shop/category/electronics
 // /shop/category/electronics/subcategory/phones
@@ -149,7 +149,7 @@ class ItemRoute extends GoRouteData { ... }
 
 ```dart
 extension $ProductRouteExtension on ProductRoute {
-  // الـ location string
+  // The location string
   String get location => '/product/$id';
 
   // Navigation methods
@@ -159,7 +159,7 @@ extension $ProductRouteExtension on ProductRoute {
   void replace(BuildContext context);
 }
 
-// الاستخدام
+// Usage
 ProductRoute(id: 123).go(context);
 ProductRoute(id: 456).push(context);
 print(ProductRoute(id: 789).location);  // '/product/789'
@@ -172,7 +172,7 @@ print(ProductRoute(id: 789).location);  // '/product/789'
 ```dart
 @TypedGoRoute<SettingsRoute>(
   path: '/settings',
-  name: 'settings',  // 👈 اسم الـ route
+  name: 'settings',  // 👈 The route name
 )
 class SettingsRoute extends GoRouteData {
   const SettingsRoute();
@@ -183,7 +183,7 @@ class SettingsRoute extends GoRouteData {
   }
 }
 
-// الـ name بيتستخدم في الـ debugging و analytics
+// The name is used in debugging and analytics
 ```
 
 ---
@@ -199,12 +199,12 @@ class AdminRoute extends GoRouteData {
   String? redirect(BuildContext context, GoRouterState state) {
     final user = AuthService.currentUser;
 
-    // لو مش admin
+    // If not admin
     if (user == null || !user.isAdmin) {
       return const HomeRoute().location;
     }
 
-    return null;  // متعملش redirect
+    return null;  // Don't redirect
   }
 
   @override
@@ -227,7 +227,7 @@ class EditRoute extends GoRouteData {
 
   @override
   Future<bool> onExit(BuildContext context, GoRouterState state) async {
-    // لو فيه تغييرات مش محفوظة
+    // If there are unsaved changes
     if (hasUnsavedChanges) {
       return await showDialog<bool>(
         context: context,
@@ -248,7 +248,7 @@ class EditRoute extends GoRouteData {
       ) ?? false;
     }
 
-    return true;  // اسمح بالخروج
+    return true;  // Allow exit
   }
 
   @override
@@ -277,7 +277,7 @@ class LoginRoute extends GoRouteData { ... }
 @TypedGoRoute<SettingsRoute>(path: '/settings')
 class SettingsRoute extends GoRouteData { ... }
 
-// كلهم هيتجمعوا في $appRoutes
+// All will be collected in $appRoutes
 ```
 
 ---
@@ -288,14 +288,14 @@ class SettingsRoute extends GoRouteData { ... }
 
 ```
 lib/router/routes/
-└── routes.dart  # كل الـ routes
+└── routes.dart  # All routes
 ```
 
 ### طريقة 2: ملفات متعددة مع export
 
 ```
 lib/router/routes/
-├── routes.dart         # الـ main file
+├── routes.dart         # The main file
 ├── home_routes.dart
 ├── product_routes.dart
 └── auth_routes.dart
@@ -307,7 +307,7 @@ export 'home_routes.dart';
 export 'product_routes.dart';
 export 'auth_routes.dart';
 
-// هنا الـ $appRoutes
+// Here is the $appRoutes
 part 'routes.g.dart';
 
 // Combine routes
@@ -349,8 +349,8 @@ class HomeRoute extends GoRouteData {
 class ProductsRoute extends GoRouteData {
   const ProductsRoute({this.category, this.sortBy = 'popular'});
 
-  final String? category;  // Query parameter
-  final String sortBy;     // Query parameter with default
+  final String? category;     // Query parameter
+  final String sortBy;        // Query parameter with default
 
   @override
   Widget build(BuildContext context, GoRouterState state) =>
@@ -361,7 +361,7 @@ class ProductRoute extends GoRouteData {
   const ProductRoute({required this.id, this.$extra});
 
   final int id;
-  final Product? $extra;  // Extra data
+  final Product? $extra;     // Extra data
 
   @override
   Widget build(BuildContext context, GoRouterState state) =>

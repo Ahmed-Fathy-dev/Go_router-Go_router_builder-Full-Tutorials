@@ -31,14 +31,14 @@ flutter pub upgrade go_router
 ### إضافة onEnter
 
 ```dart
-// v16+ جديد
+// v16+ new
 GoRouter(
   onEnter: (context, state) {
-    // قبل redirect
+    // Before redirect
     return EnterResult.allow();
   },
   redirect: (context, state) {
-    // بعد onEnter
+    // After onEnter
   },
   routes: [...],
 )
@@ -57,9 +57,9 @@ GoRouter(
 // v15: Case SENSITIVE by default
 // /Product/123 ≠ /product/123
 
-// للحفاظ على السلوك القديم:
+// To keep the old behavior:
 GoRouter(
-  caseSensitive: false,  // 👈 أضف ده
+  caseSensitive: false,  // 👈 Add this
   routes: [...],
 )
 ```
@@ -92,7 +92,7 @@ Navigator.pushReplacement(
 ```dart
 // Navigation
 context.push('/details');
-// أو
+// Or
 context.go('/details');
 
 // Pop
@@ -100,8 +100,8 @@ context.pop();
 
 // Replace
 context.pushReplacement('/home');
-// أو
-context.go('/home');  // لو عايز تمسح الـ stack
+// Or
+context.go('/home');  // If you want to clear the stack
 ```
 
 ---
@@ -179,13 +179,13 @@ DetailsRoute(id: 123).push(context);
 ### 1. اعملها تدريجياً
 
 ```dart
-// الخطوة 1: أضف GoRouter مع الحفاظ على الـ routes القديمة
+// Step 1: Add GoRouter while keeping old routes
 final router = GoRouter(
   routes: [
-    // Routes جديدة
+    // New routes
     GoRoute(path: '/', ...),
 
-    // Route يستخدم الـ Navigator القديم (مؤقت)
+    // Route using old Navigator (temporary)
     GoRoute(
       path: '/legacy/:screen',
       builder: (context, state) {
@@ -197,26 +197,26 @@ final router = GoRouter(
   ],
 );
 
-// الخطوة 2: حول route واحد في كل مرة
-// الخطوة 3: امسح LegacyScreenWrapper لما تخلص
+// Step 2: Convert one route at a time
+// Step 3: Delete LegacyScreenWrapper when done
 ```
 
 ### 2. اختبر كل حاجة
 
 ```dart
-// اكتب tests قبل الـ migration
+// Write tests before migration
 testWidgets('navigation works', (tester) async {
   // ...
 });
 
-// شغل الـ tests بعد كل تغيير
+// Run tests after each change
 ```
 
 ### 3. استخدم debugLogDiagnostics
 
 ```dart
 GoRouter(
-  debugLogDiagnostics: true,  // شوف الـ navigation في الـ console
+  debugLogDiagnostics: true,  // See navigation in console
   routes: [...],
 )
 ```

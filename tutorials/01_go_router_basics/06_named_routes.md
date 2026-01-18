@@ -16,7 +16,7 @@
 ```dart
 GoRoute(
   path: '/user/:id',
-  name: 'user-details',  // 👈 الاسم
+  name: 'user-details',  // 👈 The name
   builder: (context, state) {
     final id = state.pathParameters['id']!;
     return UserDetailsScreen(id: id);
@@ -74,20 +74,20 @@ final appRouter = GoRouter(
 ### goNamed()
 
 ```dart
-// بدل كده
+// Instead of this
 context.go('/products');
 
-// استخدم كده
+// Use this
 context.goNamed('products');
 ```
 
 ### مع Path Parameters
 
 ```dart
-// بدل كده
+// Instead of this
 context.go('/product/123');
 
-// استخدم كده
+// Use this
 context.goNamed(
   'product-details',
   pathParameters: {'id': '123'},
@@ -97,10 +97,10 @@ context.goNamed(
 ### مع Query Parameters
 
 ```dart
-// بدل كده
+// Instead of this
 context.go('/search?q=flutter&sort=recent');
 
-// استخدم كده
+// Use this
 context.goNamed(
   'search',
   queryParameters: {
@@ -121,7 +121,7 @@ context.goNamed(
     'page': '1',
   },
 );
-// النتيجة: /user/456/orders?status=pending&page=1
+// Result: /user/456/orders?status=pending&page=1
 ```
 
 ---
@@ -131,13 +131,13 @@ context.goNamed(
 نفس الفكرة بس مع push بدل go:
 
 ```dart
-// فتح صفحة التفاصيل
+// Open details page
 context.pushNamed(
   'product-details',
   pathParameters: {'id': productId},
 );
 
-// فتح صفحة البحث
+// Open search page
 context.pushNamed(
   'search',
   queryParameters: {'q': searchQuery},
@@ -151,14 +151,14 @@ context.pushNamed(
 الـ `extra` بيسمحلك تمرر أي object:
 
 ```dart
-// تمرير object كامل
+// Pass complete object
 context.goNamed(
   'product-details',
   pathParameters: {'id': '123'},
-  extra: product,  // الـ Product object
+  extra: product,  // The Product object
 );
 
-// استقبال الـ extra
+// Receive the extra
 GoRoute(
   path: '/product/:id',
   name: 'product-details',
@@ -166,7 +166,7 @@ GoRoute(
     final product = state.extra as Product?;
     final id = state.pathParameters['id']!;
 
-    // لو الـ extra موجود استخدمه، لو لأ اجلب البيانات
+    // If extra exists use it, otherwise fetch the data
     if (product != null) {
       return ProductDetailsScreen(product: product);
     }
@@ -378,7 +378,7 @@ class ProductCard extends StatelessWidget {
         title: Text(product.name),
         subtitle: Text('${product.price} ج.م'),
         onTap: () {
-          // استخدام الـ helper - واضح ونظيف
+          // Using the helper - clean and clear
           AppNavigator.pushProductDetails(
             context,
             productId: product.id,
@@ -421,13 +421,13 @@ class SearchBar extends StatelessWidget {
 ## الحصول على معلومات الـ Route الحالي
 
 ```dart
-// الحصول على اسم الـ route الحالي
+// Get current route name
 final currentRouteName = GoRouterState.of(context).name;
 print(currentRouteName);  // 'product-details'
 
-// التحقق من الـ route الحالي
+// Check current route
 if (currentRouteName == RouteNames.home) {
-  // أنت في الصفحة الرئيسية
+  // You're on the home page
 }
 ```
 
@@ -438,11 +438,11 @@ if (currentRouteName == RouteNames.home) {
 ### 1. الأسماء لازم تكون Unique
 
 ```dart
-// ❌ غلط - اسمين متشابهين
+// ❌ Wrong - duplicate names
 GoRoute(path: '/products', name: 'list', ...),
 GoRoute(path: '/users', name: 'list', ...),
 
-// ✅ صح - أسماء مميزة
+// ✅ Correct - unique names
 GoRoute(path: '/products', name: 'products-list', ...),
 GoRoute(path: '/users', name: 'users-list', ...),
 ```
@@ -450,13 +450,13 @@ GoRoute(path: '/users', name: 'users-list', ...),
 ### 2. استخدم naming convention واضح
 
 ```dart
-// ✅ أسماء واضحة ومتسقة
+// ✅ Clear and consistent names
 name: 'user-profile'
 name: 'user-orders'
 name: 'product-details'
 name: 'cart-items'
 
-// ❌ أسماء غير متسقة
+// ❌ Inconsistent names
 name: 'userProfile'
 name: 'orders_list'
 name: 'ProductDetails'
@@ -465,14 +465,14 @@ name: 'ProductDetails'
 ### 3. Path Parameters لازم تتطابق
 
 ```dart
-// الـ Route
+// The Route
 GoRoute(
   path: '/user/:userId/order/:orderId',
   name: 'order-details',
   ...
 )
 
-// ✅ صح - كل الـ parameters موجودة
+// ✅ Correct - all parameters present
 context.goNamed(
   'order-details',
   pathParameters: {
@@ -481,10 +481,10 @@ context.goNamed(
   },
 );
 
-// ❌ غلط - parameter ناقص
+// ❌ Wrong - missing parameter
 context.goNamed(
   'order-details',
-  pathParameters: {'userId': '123'},  // orderId ناقص!
+  pathParameters: {'userId': '123'},  // orderId missing!
 );
 ```
 

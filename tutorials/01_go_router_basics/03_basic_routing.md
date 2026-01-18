@@ -25,16 +25,16 @@ GoRouter بيوفرلك كذا طريقة للتنقل بين الصفحات، �
 - Navigation يعتمد على الـ URL
 
 ```dart
-// الانتقال للرئيسية
+// Navigate to home
 context.go('/');
 
-// الانتقال لصفحة التفاصيل
+// Navigate to details page
 context.go('/details');
 
-// مع parameters
+// With parameters
 context.go('/user/123');
 
-// مع query parameters
+// With query parameters
 context.go('/search?query=flutter&sort=recent');
 ```
 
@@ -82,27 +82,27 @@ class HomeScreen extends StatelessWidget {
 - لما تحتاج المستخدم يقدر يرجع بالـ back button
 
 ```dart
-// إضافة صفحة للـ stack
+// Add page to stack
 context.push('/details');
 
-// مع parameters
+// With parameters
 context.push('/product/456');
 ```
 
 ### الفرق بين go() و push()
 
 ```dart
-// السيناريو: أنت في Home وعايز تروح Details
+// Scenario: You're on Home and want to go to Details
 
-// باستخدام go():
+// Using go():
 context.go('/details');
-// الـ Stack: [Details]
-// لو ضغطت back -> هتخرج من التطبيق!
+// Stack: [Details]
+// If you press back -> You'll exit the app!
 
-// باستخدام push():
+// Using push():
 context.push('/details');
-// الـ Stack: [Home, Details]
-// لو ضغطت back -> هترجع لـ Home ✅
+// Stack: [Home, Details]
+// If you press back -> You'll go back to Home ✅
 ```
 
 ### مثال عملي
@@ -125,7 +125,7 @@ class ProductListScreen extends StatelessWidget {
             title: Text(product.name),
             subtitle: Text('${product.price} ج.م'),
             onTap: () {
-              // push عشان المستخدم يقدر يرجع للقائمة
+              // push so user can go back to the list
               context.push('/product/${product.id}');
             },
           );
@@ -144,22 +144,22 @@ class ProductListScreen extends StatelessWidget {
 بيرجع للصفحة السابقة في الـ stack.
 
 ```dart
-// الرجوع للخلف
+// Go back
 context.pop();
 
-// الرجوع مع إرجاع قيمة
-context.pop(true);  // مثلاً: هل تم الحفظ؟
+// Go back with return value
+context.pop(true);  // e.g.: Was it saved?
 context.pop({'status': 'saved', 'id': 123});
 ```
 
 ### التحقق من إمكانية الرجوع
 
 ```dart
-// هل فيه صفحة قبل دي؟
+// Is there a page before this one?
 if (context.canPop()) {
   context.pop();
 } else {
-  // مفيش صفحة قبلها، روح للرئيسية
+  // No page before, go to home
   context.go('/');
 }
 ```
@@ -167,30 +167,30 @@ if (context.canPop()) {
 ### استقبال القيمة المرجعة من pop()
 
 ```dart
-// في الصفحة الأولى
+// In the first page
 ElevatedButton(
   onPressed: () async {
-    // push وانتظر النتيجة
+    // push and wait for result
     final result = await context.push<bool>('/confirm');
 
     if (result == true) {
-      // المستخدم أكد العملية
-      print('تم التأكيد!');
+      // User confirmed the action
+      print('Confirmed!');
     }
   },
   child: const Text('تأكيد'),
 )
 
-// في صفحة التأكيد
+// In the confirmation page
 ElevatedButton(
   onPressed: () {
-    context.pop(true);  // أكد
+    context.pop(true);  // Confirmed
   },
   child: const Text('نعم'),
 ),
 ElevatedButton(
   onPressed: () {
-    context.pop(false);  // ألغى
+    context.pop(false);  // Cancelled
   },
   child: const Text('لا'),
 ),
@@ -204,7 +204,7 @@ ElevatedButton(
 بيستبدل الصفحة الحالية بصفحة جديدة بدون ما يضيفها للـ stack.
 
 ```dart
-// استبدال الصفحة الحالية
+// Replace current page
 context.replace('/new-page');
 ```
 
@@ -230,7 +230,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 2));
 
     if (mounted) {
-      // استبدال الـ Splash بالـ Home أو Login
+      // Replace Splash with Home or Login
       if (isLoggedIn) {
         context.replace('/home');
       } else {
@@ -262,16 +262,16 @@ context.pushReplacement('/new-page');
 ### الفرق عن replace()
 
 ```dart
-// Stack قبل: [A, B, C]
+// Stack before: [A, B, C]
 
-// باستخدام replace():
+// Using replace():
 context.replace('/D');
-// Stack بعد: [A, B, D]
+// Stack after: [A, B, D]
 
-// باستخدام pushReplacement():
+// Using pushReplacement():
 context.pushReplacement('/D');
-// Stack بعد: [A, B, D]
-// نفس النتيجة لكن مع transition animation
+// Stack after: [A, B, D]
+// Same result but with transition animation
 ```
 
 ---
@@ -281,7 +281,7 @@ context.pushReplacement('/D');
 ### طريقة 1: باستخدام context
 
 ```dart
-// كل الـ methods دي بتحتاج context
+// All these methods need context
 context.go('/path');
 context.push('/path');
 context.pop();
@@ -290,7 +290,7 @@ context.pop();
 ### طريقة 2: باستخدام GoRouter.of()
 
 ```dart
-// الحصول على instance من الـ router
+// Get router instance
 final router = GoRouter.of(context);
 
 router.go('/path');
@@ -301,7 +301,7 @@ router.pop();
 ### طريقة 3: باستخدام ref من الـ Router مباشرة
 
 ```dart
-// لو عندك الـ router كـ global variable
+// If you have the router as a global variable
 appRouter.go('/path');
 appRouter.push('/path');
 ```
@@ -311,11 +311,11 @@ appRouter.push('/path');
 ## معلومات عن الـ Location الحالي
 
 ```dart
-// الحصول على الـ location الحالي
+// Get current location
 final currentLocation = GoRouterState.of(context).uri.toString();
 print(currentLocation);  // /products/123?sort=price
 
-// أو
+// Or
 final router = GoRouter.of(context);
 print(router.state.uri);
 ```
@@ -325,7 +325,7 @@ print(router.state.uri);
 ## مثال شامل
 
 ```dart
-// تعريف الـ Router
+// Define the Router
 final appRouter = GoRouter(
   initialLocation: '/',
   routes: [
@@ -355,7 +355,7 @@ final appRouter = GoRouter(
   ],
 );
 
-// الـ Home Screen
+// Home Screen
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -365,12 +365,12 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('المتجر')),
       body: Column(
         children: [
-          // go - للانتقال الرئيسي
+          // go - for main navigation
           ListTile(
             title: const Text('المنتجات'),
             onTap: () => context.go('/products'),
           ),
-          // go - للانتقال الرئيسي
+          // go - for main navigation
           ListTile(
             title: const Text('السلة'),
             onTap: () => context.go('/cart'),
@@ -393,7 +393,7 @@ class ProductsScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // التحقق قبل الرجوع
+            // Check before going back
             if (context.canPop()) {
               context.pop();
             } else {
@@ -408,7 +408,7 @@ class ProductsScreen extends StatelessWidget {
           return ListTile(
             title: Text('منتج $index'),
             onTap: () {
-              // push - عشان المستخدم يقدر يرجع للقائمة
+              // push - so user can go back to the list
               context.push('/product/$index');
             },
           );
@@ -429,7 +429,7 @@ class CartScreen extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            // pushReplacement - بعد الـ checkout مش عايز يرجع للسلة
+            // pushReplacement - after checkout, don't want to go back to cart
             context.pushReplacement('/checkout');
           },
           child: const Text('إتمام الشراء'),

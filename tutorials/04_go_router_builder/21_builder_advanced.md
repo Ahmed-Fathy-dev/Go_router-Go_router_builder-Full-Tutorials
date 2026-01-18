@@ -71,7 +71,7 @@ Page<void> buildPage(BuildContext context, GoRouterState state) {
   return MaterialPage(
     key: state.pageKey,
     child: const MyScreen(),
-    fullscreenDialog: true,  // للـ modals
+    fullscreenDialog: true,  // For modals
   );
 }
 ```
@@ -103,14 +103,14 @@ class ConfirmRoute extends GoRouteData {
 ### استخدام push مع await
 
 ```dart
-// في الصفحة الأصلية
+// In the original screen
 Future<void> _showConfirmation() async {
   final result = await ConfirmRoute(
     message: 'هل أنت متأكد؟',
   ).push<bool>(context);
 
   if (result == true) {
-    // تم التأكيد
+    // Confirmed
     _performAction();
   }
 }
@@ -123,7 +123,7 @@ Future<void> _showConfirmation() async {
 لإعادة استخدام route في أماكن مختلفة:
 
 ```dart
-// Route قابل لإعادة الاستخدام
+// Reusable route
 class DetailsRoute extends GoRouteData {
   const DetailsRoute({required this.id});
 
@@ -135,7 +135,7 @@ class DetailsRoute extends GoRouteData {
   }
 }
 
-// استخدامه في أماكن مختلفة
+// Using it in different places
 @TypedGoRoute<ProductsRoute>(
   path: '/products',
   routes: [
@@ -164,19 +164,19 @@ class ProtectedRoute extends GoRouteData {
 
   @override
   String? redirect(BuildContext context, GoRouterState state) {
-    // تحقق من الـ authentication
+    // Check authentication
     if (!AuthService.isLoggedIn) {
       return const LoginRoute(
         redirectTo: '/protected',
       ).location;
     }
 
-    // تحقق من الـ permissions
+    // Check permissions
     if (!AuthService.hasPermission('view_protected')) {
       return const HomeRoute().location;
     }
 
-    return null;  // اسمح بالدخول
+    return null;  // Allow access
   }
 
   @override
@@ -197,7 +197,7 @@ class FormRoute extends GoRouteData {
 
   @override
   Future<bool> onExit(BuildContext context, GoRouterState state) async {
-    // لو فيه تغييرات مش محفوظة
+    // If there are unsaved changes
     final formState = FormController.of(context);
 
     if (formState.hasUnsavedChanges) {
@@ -245,7 +245,7 @@ class ProductRoute extends GoRouteData {
   final int id;
   final Product? product;
 
-  // Factory للإنشاء من Product مباشرة
+  // Factory to create from a Product directly
   factory ProductRoute.fromProduct(Product product) {
     return ProductRoute._(
       id: product.id,
@@ -253,7 +253,7 @@ class ProductRoute extends GoRouteData {
     );
   }
 
-  // Factory للإنشاء من ID فقط
+  // Factory to create from ID only
   factory ProductRoute.fromId(int id) {
     return ProductRoute._(id: id);
   }
@@ -264,7 +264,7 @@ class ProductRoute extends GoRouteData {
   }
 }
 
-// الاستخدام
+// Usage
 ProductRoute.fromProduct(myProduct).push(context);
 ProductRoute.fromId(123).go(context);
 ```
@@ -361,7 +361,7 @@ class ProductRoute extends GoRouteData {
 class ProfileRoute extends GoRouteData {
   const ProfileRoute();
 
-  // Redirect لو مش logged in
+  // Redirect if not logged in
   @override
   String? redirect(context, state) {
     if (!AuthService.isLoggedIn) {
@@ -377,7 +377,7 @@ class ProfileRoute extends GoRouteData {
 class EditProfileRoute extends GoRouteData {
   const EditProfileRoute();
 
-  // تأكيد قبل الخروج
+  // Confirm before exit
   @override
   Future<bool> onExit(context, state) async {
     if (hasUnsavedChanges) {
@@ -398,7 +398,7 @@ class ConfirmDialogRoute extends GoRouteData {
 
   final String message;
 
-  // خارج الـ shell
+  // Outside the shell
   static final GlobalKey<NavigatorState> $parentNavigatorKey = rootNavigatorKey;
 
   // Modal transition
@@ -436,7 +436,7 @@ class LoginRoute extends GoRouteData {
 
   final String? redirectTo;
 
-  // خارج الـ shell
+  // Outside the shell
   static final GlobalKey<NavigatorState> $parentNavigatorKey = rootNavigatorKey;
 
   @override
@@ -450,7 +450,7 @@ ProductRoute(id: 123, $extra: product).push(context);
 
 // Modal with return value
 final confirmed = await const ConfirmDialogRoute(
-  message: 'هل تريد الحذف؟',
+  message: 'Do you want to delete?',
 ).push<bool>(context);
 
 if (confirmed == true) {

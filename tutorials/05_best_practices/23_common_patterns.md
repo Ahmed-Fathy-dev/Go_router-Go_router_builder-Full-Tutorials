@@ -29,12 +29,12 @@ final appRouter = GoRouter(
     final isAuthRoute = state.uri.path == '/login' ||
                         state.uri.path == '/register';
 
-    // مش مسجل + مش في صفحة auth
+    // Not logged in + not on auth page
     if (!isLoggedIn && !isAuthRoute) {
       return '/login?redirect=${state.uri}';
     }
 
-    // مسجل + في صفحة auth
+    // Logged in + on auth page
     if (isLoggedIn && isAuthRoute) {
       final redirect = state.uri.queryParameters['redirect'];
       return redirect ?? '/';
@@ -64,12 +64,12 @@ final appRouter = GoRouter(
     final isInitialized = AppInitService.isInitialized;
     final isSplash = state.uri.path == '/splash';
 
-    // لو مش initialized، ابقى في splash
+    // If not initialized, stay in splash
     if (!isInitialized && !isSplash) {
       return '/splash';
     }
 
-    // لو initialized ولسه في splash
+    // If initialized and still in splash
     if (isInitialized && isSplash) {
       return AuthService.isLoggedIn ? '/' : '/onboarding';
     }
@@ -82,7 +82,7 @@ final appRouter = GoRouter(
       path: '/splash',
       builder: (context, state) => const SplashScreen(),
     ),
-    // باقي الـ routes
+    // Remaining routes
   ],
 );
 
@@ -101,7 +101,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _initialize() async {
     await AppInitService.initialize();
     if (mounted) {
-      // الـ router هيعمل redirect تلقائي
+      // The router will redirect automatically
       context.go('/');
     }
   }
@@ -226,10 +226,10 @@ GoRoute(
   },
 )
 
-// الاستخدام
-final result = await context.push<bool>('/confirm', extra: 'هل أنت متأكد؟');
+// Usage
+final result = await context.push<bool>('/confirm', extra: 'Are you sure?');
 if (result == true) {
-  // تم التأكيد
+  // Confirmed
 }
 ```
 
@@ -243,7 +243,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/checkout',
       redirect: (context, state) {
-        // لو دخل /checkout مباشرة، وديه للخطوة الأولى
+        // If entering /checkout directly, redirect to first step
         if (state.uri.path == '/checkout') {
           return '/checkout/cart';
         }
@@ -271,9 +271,9 @@ final appRouter = GoRouter(
   ],
 );
 
-// Navigation في كل step
-context.go('/checkout/shipping');  // للخطوة التالية
-context.go('/checkout/cart');      // للخطوة السابقة
+// Navigation in each step
+context.go('/checkout/shipping');  // Next step
+context.go('/checkout/cart');      // Previous step
 ```
 
 ---
@@ -293,7 +293,7 @@ class SearchScreen extends StatelessWidget {
   final String? initialQuery;
 
   void _search(BuildContext context, String query) {
-    // بيحدث الـ URL بدون إضافة للـ history
+    // Updates URL without adding to history
     context.go('/search?q=${Uri.encodeComponent(query)}');
   }
 
@@ -349,7 +349,7 @@ GoRouter(
 ## 9. Protected Route Pattern
 
 ```dart
-// باستخدام extension
+// Using extension
 extension ProtectedRoute on GoRoute {
   GoRoute protected() {
     return GoRoute(
@@ -367,7 +367,7 @@ extension ProtectedRoute on GoRoute {
   }
 }
 
-// الاستخدام
+// Usage
 GoRoute(
   path: '/profile',
   builder: (context, state) => const ProfileScreen(),
@@ -381,10 +381,10 @@ GoRoute(
 ```dart
 GoRouter(
   redirect: (context, state) {
-    // تحقق من الـ feature flags
+    // Check feature flags
     if (state.uri.path.startsWith('/new-feature')) {
       if (!FeatureFlags.isEnabled('new_feature')) {
-        return '/';  // الميزة مش مفعلة
+        return '/';  // Feature not enabled
       }
     }
 
