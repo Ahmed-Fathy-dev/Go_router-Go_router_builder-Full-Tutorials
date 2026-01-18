@@ -27,6 +27,7 @@
 
 | الدرس | الموضوع | الوصف |
 |-------|---------|-------|
+| 00 | [تاريخ Navigation](tutorials/01_go_router_basics/00_navigator_history.md) | Navigator 1.0 vs 2.0 وليه GoRouter |
 | 01 | [المقدمة](tutorials/01_go_router_basics/01_introduction.md) | تعريف المكتبة ومميزاتها |
 | 02 | [التثبيت والإعداد](tutorials/01_go_router_basics/02_installation.md) | إضافة المكتبة وإعداد المشروع |
 | 03 | [التوجيه الأساسي](tutorials/01_go_router_basics/03_basic_routing.md) | `go()`, `push()`, `pop()` |

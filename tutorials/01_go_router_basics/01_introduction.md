@@ -163,4 +163,4 @@ GoRoute(
 
 ---
 
-[➡️ الدرس التالي: التثبيت والإعداد](02_installation.md)
+[⬅️ الدرس السابق: تاريخ Navigation في Flutter](00_navigator_history.md) | [➡️ الدرس التالي: التثبيت والإعداد](02_installation.md)
