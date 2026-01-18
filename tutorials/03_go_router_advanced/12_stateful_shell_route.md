@@ -18,7 +18,7 @@
 - الـ scroll position بيضيع
 - أي state في الـ screen بيضيع
 
-**StatefulShellRoute** بيحل المشكلة دي عن طريق:
+ال **StatefulShellRoute** بيحل المشكلة دي عن طريق:
 - إنشاء Navigator **منفصل** لكل branch
 - حفظ الحالة لكل tab
 - الـ screens مش بتتدمر لما تتنقل لـ tab تاني
