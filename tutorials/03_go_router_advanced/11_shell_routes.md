@@ -118,38 +118,29 @@ final appRouter = GoRouter(
   ],
 );
 
-// The Shell Widget
+// The Shell Widget (Material 3)
 class ScaffoldWithBottomNav extends StatelessWidget {
+  const ScaffoldWithBottomNav({super.key, required this.child});
+
   final Widget child;
 
-  const ScaffoldWithBottomNav({super.key, required this.child});
+  static const _destinations = [
+    NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'الرئيسية'),
+    NavigationDestination(icon: Icon(Icons.search_outlined), selectedIcon: Icon(Icons.search), label: 'بحث'),
+    NavigationDestination(icon: Icon(Icons.favorite_outline), selectedIcon: Icon(Icons.favorite), label: 'المفضلة'),
+    NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'حسابي'),
+  ];
+
+  static const _paths = ['/home', '/search', '/favorites', '/profile'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _calculateSelectedIndex(context),
-        onTap: (index) => _onItemTapped(index, context),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'الرئيسية',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'بحث',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'المفضلة',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'حسابي',
-          ),
-        ],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _calculateSelectedIndex(context),
+        onDestinationSelected: (index) => context.go(_paths[index]),
+        destinations: _destinations,
       ),
     );
   }
@@ -157,29 +148,11 @@ class ScaffoldWithBottomNav extends StatelessWidget {
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
 
-    if (location.startsWith('/home')) return 0;
-    if (location.startsWith('/search')) return 1;
-    if (location.startsWith('/favorites')) return 2;
-    if (location.startsWith('/profile')) return 3;
+    for (var i = 0; i < _paths.length; i++) {
+      if (location.startsWith(_paths[i])) return i;
+    }
 
     return 0;
-  }
-
-  void _onItemTapped(int index, BuildContext context) {
-    switch (index) {
-      case 0:
-        context.go('/home');
-        break;
-      case 1:
-        context.go('/search');
-        break;
-      case 2:
-        context.go('/favorites');
-        break;
-      case 3:
-        context.go('/profile');
-        break;
-    }
   }
 }
 ```
@@ -287,62 +260,47 @@ _shellNavigatorKey.currentState?.pop();
 ```dart
 ShellRoute(
   builder: (context, state, child) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_getTitle(state.uri.path)),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            const DrawerHeader(
-              child: Text('التطبيق'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('الرئيسية'),
-              selected: state.uri.path == '/home',
-              onTap: () {
-                Navigator.pop(context);  // Close the drawer
-                context.go('/home');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('الإعدادات'),
-              selected: state.uri.path == '/settings',
-              onTap: () {
-                Navigator.pop(context);
-                context.go('/settings');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.info),
-              title: const Text('عن التطبيق'),
-              selected: state.uri.path == '/about',
-              onTap: () {
-                Navigator.pop(context);
-                context.go('/about');
-              },
-            ),
-          ],
-        ),
-      ),
-      body: child,
-    );
+    return _DrawerShell(path: state.uri.path, child: child);
   },
   routes: [
-    GoRoute(path: '/home', builder: ...),
-    GoRoute(path: '/settings', builder: ...),
-    GoRoute(path: '/about', builder: ...),
+    GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
+    GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
+    GoRoute(path: '/about', builder: (_, __) => const AboutScreen()),
   ],
 )
 
-String _getTitle(String path) {
-  switch (path) {
-    case '/home': return 'الرئيسية';
-    case '/settings': return 'الإعدادات';
-    case '/about': return 'عن التطبيق';
-    default: return 'التطبيق';
+class _DrawerShell extends StatelessWidget {
+  const _DrawerShell({required this.path, required this.child});
+
+  final String path;
+  final Widget child;
+
+  static const _pages = {
+    '/home': ('الرئيسية', Icons.home),
+    '/settings': ('الإعدادات', Icons.settings),
+    '/about': ('عن التطبيق', Icons.info),
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(_pages[path]?.$1 ?? 'التطبيق')),
+      drawer: NavigationDrawer(
+        selectedIndex: _pages.keys.toList().indexOf(path),
+        onDestinationSelected: (index) {
+          Navigator.pop(context);
+          context.go(_pages.keys.elementAt(index));
+        },
+        children: [
+          const DrawerHeader(child: Text('التطبيق')),
+          ..._pages.entries.map((e) => NavigationDrawerDestination(
+            icon: Icon(e.value.$2),
+            label: Text(e.value.$1),
+          )),
+        ],
+      ),
+      body: child,
+    );
   }
 }
 ```

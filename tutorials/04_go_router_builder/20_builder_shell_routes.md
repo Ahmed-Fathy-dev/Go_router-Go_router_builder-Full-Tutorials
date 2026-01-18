@@ -116,20 +116,28 @@ class ProfileRoute extends GoRouteData {
 // ==================== Shell Widget ====================
 
 class ShellScaffold extends StatelessWidget {
-  final String currentPath;
-  final Widget child;
-
   const ShellScaffold({
     super.key,
     required this.currentPath,
     required this.child,
   });
 
+  final String currentPath;
+  final Widget child;
+
+  static const _tabs = [
+    (path: '/home', icon: Icons.home_outlined, selectedIcon: Icons.home, label: 'الرئيسية'),
+    (path: '/explore', icon: Icons.explore_outlined, selectedIcon: Icons.explore, label: 'استكشف'),
+    (path: '/cart', icon: Icons.shopping_cart_outlined, selectedIcon: Icons.shopping_cart, label: 'السلة'),
+    (path: '/profile', icon: Icons.person_outline, selectedIcon: Icons.person, label: 'حسابي'),
+  ];
+
+  static const _routes = [HomeRoute(), ExploreRoute(), CartRoute(), ProfileRoute()];
+
   int get _selectedIndex {
-    if (currentPath.startsWith('/home')) return 0;
-    if (currentPath.startsWith('/explore')) return 1;
-    if (currentPath.startsWith('/cart')) return 2;
-    if (currentPath.startsWith('/profile')) return 3;
+    for (var i = 0; i < _tabs.length; i++) {
+      if (currentPath.startsWith(_tabs[i].path)) return i;
+    }
     return 0;
   }
 
@@ -139,43 +147,14 @@ class ShellScaffold extends StatelessWidget {
       body: child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          switch (index) {
-            case 0:
-              const HomeRoute().go(context);
-              break;
-            case 1:
-              const ExploreRoute().go(context);
-              break;
-            case 2:
-              const CartRoute().go(context);
-              break;
-            case 3:
-              const ProfileRoute().go(context);
-              break;
-          }
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'الرئيسية',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.explore_outlined),
-            selectedIcon: Icon(Icons.explore),
-            label: 'استكشف',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.shopping_cart_outlined),
-            selectedIcon: Icon(Icons.shopping_cart),
-            label: 'السلة',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'حسابي',
-          ),
+        onDestinationSelected: (index) => _routes[index].go(context),
+        destinations: [
+          for (final tab in _tabs)
+            NavigationDestination(
+              icon: Icon(tab.icon),
+              selectedIcon: Icon(tab.selectedIcon),
+              label: tab.label,
+            ),
         ],
       ),
     );

@@ -110,45 +110,34 @@ final appRouter = GoRouter(
 ## مثال كامل للـ extraCodec
 
 ```dart
-// Models
-class Product {
-  final String id;
-  final String name;
-  final double price;
+// Models with freezed
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  Product({required this.id, required this.name, required this.price});
+part 'models.freezed.dart';
+part 'models.g.dart';
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'price': price,
-  };
+@freezed
+class Product with _$Product {
+  const factory Product({
+    required String id,
+    required String name,
+    required double price,
+  }) = _Product;
 
-  factory Product.fromJson(Map<String, dynamic> json) => Product(
-    id: json['id'] as String,
-    name: json['name'] as String,
-    price: (json['price'] as num).toDouble(),
-  );
+  factory Product.fromJson(Map<String, dynamic> json) => _$ProductFromJson(json);
 }
 
-class CartItem {
-  final Product product;
-  final int quantity;
+@freezed
+class CartItem with _$CartItem {
+  const factory CartItem({
+    required Product product,
+    required int quantity,
+  }) = _CartItem;
 
-  CartItem({required this.product, required this.quantity});
-
-  Map<String, dynamic> toJson() => {
-    'product': product.toJson(),
-    'quantity': quantity,
-  };
-
-  factory CartItem.fromJson(Map<String, dynamic> json) => CartItem(
-    product: Product.fromJson(json['product'] as Map<String, dynamic>),
-    quantity: json['quantity'] as int,
-  );
+  factory CartItem.fromJson(Map<String, dynamic> json) => _$CartItemFromJson(json);
 }
 
-// Codec
+// Type-safe Codec using a registry pattern
 class AppExtraCodec extends Codec<Object?, Object?> {
   const AppExtraCodec();
 
@@ -163,25 +152,16 @@ class _AppEncoder extends Converter<Object?, Object?> {
   const _AppEncoder();
 
   @override
-  Object? convert(Object? input) {
-    if (input == null) return null;
-
-    if (input is Product) {
-      return {'__type': 'Product', 'data': input.toJson()};
-    }
-    if (input is CartItem) {
-      return {'__type': 'CartItem', 'data': input.toJson()};
-    }
-    if (input is List<CartItem>) {
-      return {
-        '__type': 'List<CartItem>',
-        'data': input.map((e) => e.toJson()).toList(),
-      };
-    }
-
-    // For simple types
-    return input;
-  }
+  Object? convert(Object? input) => switch (input) {
+    null => null,
+    Product p => {'__type': 'Product', 'data': p.toJson()},
+    CartItem c => {'__type': 'CartItem', 'data': c.toJson()},
+    List<CartItem> items => {
+      '__type': 'List<CartItem>',
+      'data': items.map((e) => e.toJson()).toList(),
+    },
+    _ => input,
+  };
 }
 
 class _AppDecoder extends Converter<Object?, Object?> {
@@ -189,25 +169,21 @@ class _AppDecoder extends Converter<Object?, Object?> {
 
   @override
   Object? convert(Object? input) {
-    if (input == null) return null;
-
-    if (input is Map<String, dynamic> && input.containsKey('__type')) {
-      final type = input['__type'] as String;
-      final data = input['data'];
-
-      switch (type) {
-        case 'Product':
-          return Product.fromJson(data as Map<String, dynamic>);
-        case 'CartItem':
-          return CartItem.fromJson(data as Map<String, dynamic>);
-        case 'List<CartItem>':
-          return (data as List)
-              .map((e) => CartItem.fromJson(e as Map<String, dynamic>))
-              .toList();
-      }
+    if (input is! Map<String, dynamic> || !input.containsKey('__type')) {
+      return input;
     }
 
-    return input;
+    final type = input['__type'] as String;
+    final data = input['data'];
+
+    return switch (type) {
+      'Product' => Product.fromJson(data as Map<String, dynamic>),
+      'CartItem' => CartItem.fromJson(data as Map<String, dynamic>),
+      'List<CartItem>' => (data as List)
+          .map((e) => CartItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      _ => input,
+    };
   }
 }
 

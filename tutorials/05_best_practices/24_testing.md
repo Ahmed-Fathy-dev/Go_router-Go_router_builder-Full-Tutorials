@@ -7,7 +7,8 @@
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mocktail: ^1.0.0  # For mocking
+  mocktail: ^1.0.4          # For mocking
+  golden_toolkit: ^0.15.0    # For golden tests (optional)
 ```
 
 ---
