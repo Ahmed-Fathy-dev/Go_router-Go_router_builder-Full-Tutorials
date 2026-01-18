@@ -2,54 +2,137 @@
 
 ## 1. Authentication Flow
 
-```dart
-class AuthNotifier extends ChangeNotifier {
-  bool _isLoggedIn = false;
-  bool get isLoggedIn => _isLoggedIn;
+### باستخدام Riverpod 3+ (الطريقة الموصى بها)
 
-  void login() {
-    _isLoggedIn = true;
-    notifyListeners();
+```dart
+// lib/features/auth/domain/auth_state.dart
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'auth_state.freezed.dart';
+
+@freezed
+class AuthState with _$AuthState {
+  const factory AuthState.initial() = _Initial;
+  const factory AuthState.loading() = _Loading;
+  const factory AuthState.authenticated(User user) = _Authenticated;
+  const factory AuthState.unauthenticated() = _Unauthenticated;
+  const factory AuthState.error(String message) = _Error;
+}
+
+extension AuthStateX on AuthState {
+  bool get isAuthenticated => this is _Authenticated;
+  User? get user => mapOrNull(authenticated: (s) => s.user);
+}
+```
+
+```dart
+// lib/features/auth/providers/auth_provider.dart
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'auth_provider.g.dart';
+
+@Riverpod(keepAlive: true)
+class Auth extends _$Auth {
+  @override
+  AuthState build() => const AuthState.initial();
+
+  Future<void> checkAuthStatus() async {
+    state = const AuthState.loading();
+    try {
+      final user = await ref.read(authRepositoryProvider).getCurrentUser();
+      state = user != null
+          ? AuthState.authenticated(user)
+          : const AuthState.unauthenticated();
+    } catch (e) {
+      state = AuthState.error(e.toString());
+    }
   }
 
-  void logout() {
-    _isLoggedIn = false;
-    notifyListeners();
+  Future<void> login(String email, String password) async {
+    state = const AuthState.loading();
+    try {
+      final user = await ref.read(authRepositoryProvider).login(email, password);
+      state = AuthState.authenticated(user);
+    } catch (e) {
+      state = AuthState.error(e.toString());
+    }
+  }
+
+  Future<void> logout() async {
+    await ref.read(authRepositoryProvider).logout();
+    state = const AuthState.unauthenticated();
+  }
+}
+```
+
+```dart
+// lib/core/router/auth_refresh_listenable.dart
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+class AuthRefreshListenable extends ChangeNotifier {
+  AuthRefreshListenable(Ref ref) {
+    ref.listen(authProvider, (_, __) => notifyListeners());
   }
 }
 
-final authNotifier = AuthNotifier();
+@riverpod
+Listenable authRefreshListenable(Ref ref) => AuthRefreshListenable(ref);
+```
 
-final appRouter = GoRouter(
-  refreshListenable: authNotifier,
-  initialLocation: '/',
+```dart
+// lib/core/router/app_router.dart
+@riverpod
+GoRouter appRouter(Ref ref) {
+  final authState = ref.watch(authProvider);
 
-  redirect: (context, state) {
-    final isLoggedIn = authNotifier.isLoggedIn;
-    final isAuthRoute = state.uri.path == '/login' ||
-                        state.uri.path == '/register';
+  return GoRouter(
+    refreshListenable: ref.watch(authRefreshListenableProvider),
+    initialLocation: '/',
 
-    // Not logged in + not on auth page
-    if (!isLoggedIn && !isAuthRoute) {
-      return '/login?redirect=${state.uri}';
-    }
+    redirect: (context, state) {
+      final isAuthenticated = authState.isAuthenticated;
+      final isAuthRoute = ['/login', '/register'].contains(state.uri.path);
 
-    // Logged in + on auth page
-    if (isLoggedIn && isAuthRoute) {
-      final redirect = state.uri.queryParameters['redirect'];
-      return redirect ?? '/';
-    }
+      // Not authenticated & trying to access protected route
+      if (!isAuthenticated && !isAuthRoute) {
+        return '/login?redirect=${Uri.encodeComponent(state.uri.toString())}';
+      }
 
-    return null;
-  },
+      // Authenticated & trying to access auth routes
+      if (isAuthenticated && isAuthRoute) {
+        final redirect = state.uri.queryParameters['redirect'];
+        return redirect != null ? Uri.decodeComponent(redirect) : '/';
+      }
 
-  routes: [
-    GoRoute(path: '/', builder: ...),
-    GoRoute(path: '/login', builder: ...),
-    GoRoute(path: '/register', builder: ...),
-    GoRoute(path: '/profile', builder: ...),
-  ],
-);
+      return null;
+    },
+
+    routes: $appRoutes,
+  );
+}
+```
+
+```dart
+// lib/main.dart
+void main() {
+  runApp(const ProviderScope(child: MyApp()));
+}
+
+class MyApp extends ConsumerWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MaterialApp.router(
+      routerConfig: ref.watch(appRouterProvider),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
+    );
+  }
+}
 ```
 
 ---
@@ -57,61 +140,102 @@ final appRouter = GoRouter(
 ## 2. Splash Screen Pattern
 
 ```dart
-final appRouter = GoRouter(
-  initialLocation: '/splash',
+// lib/features/app_init/providers/app_init_provider.dart
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-  redirect: (context, state) {
-    final isInitialized = AppInitService.isInitialized;
-    final isSplash = state.uri.path == '/splash';
+part 'app_init_provider.g.dart';
 
-    // If not initialized, stay in splash
-    if (!isInitialized && !isSplash) {
-      return '/splash';
-    }
+enum AppInitStatus { initial, loading, ready, error }
 
-    // If initialized and still in splash
-    if (isInitialized && isSplash) {
-      return AuthService.isLoggedIn ? '/' : '/onboarding';
-    }
-
-    return null;
-  },
-
-  routes: [
-    GoRoute(
-      path: '/splash',
-      builder: (context, state) => const SplashScreen(),
-    ),
-    // Remaining routes
-  ],
-);
-
-class SplashScreen extends StatefulWidget {
+@Riverpod(keepAlive: true)
+class AppInit extends _$AppInit {
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  AppInitStatus build() => AppInitStatus.initial;
+
+  Future<void> initialize() async {
+    if (state != AppInitStatus.initial) return;
+
+    state = AppInitStatus.loading;
+    try {
+      // Initialize your services
+      await Future.wait([
+        ref.read(authProvider.notifier).checkAuthStatus(),
+        ref.read(settingsProvider.notifier).load(),
+        // Add more initialization tasks...
+      ]);
+      state = AppInitStatus.ready;
+    } catch (e) {
+      state = AppInitStatus.error;
+    }
+  }
+}
+```
+
+```dart
+// lib/features/splash/presentation/splash_screen.dart
+class SplashScreen extends ConsumerStatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _initialize();
-  }
-
-  Future<void> _initialize() async {
-    await AppInitService.initialize();
-    if (mounted) {
-      // The router will redirect automatically
-      context.go('/');
-    }
+    // Start initialization
+    ref.read(appInitProvider.notifier).initialize();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Listen to init status and redirect when ready
+    ref.listen(appInitProvider, (_, status) {
+      if (status == AppInitStatus.ready) {
+        final isAuthenticated = ref.read(authProvider).isAuthenticated;
+        context.go(isAuthenticated ? '/' : '/onboarding');
+      }
+    });
+
     return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FlutterLogo(size: 100),
+            SizedBox(height: 24),
+            CircularProgressIndicator(),
+          ],
+        ),
+      ),
     );
   }
+}
+```
+
+```dart
+// Router configuration
+@riverpod
+GoRouter appRouter(Ref ref) {
+  final initStatus = ref.watch(appInitProvider);
+
+  return GoRouter(
+    initialLocation: '/splash',
+
+    redirect: (context, state) {
+      final isSplash = state.uri.path == '/splash';
+
+      // If not ready, stay in splash
+      if (initStatus != AppInitStatus.ready && !isSplash) {
+        return '/splash';
+      }
+
+      return null;
+    },
+
+    routes: $appRoutes,
+  );
 }
 ```
 
@@ -120,40 +244,92 @@ class _SplashScreenState extends State<SplashScreen> {
 ## 3. Tab Navigation Pattern
 
 ```dart
+// lib/core/router/routes.dart
 StatefulShellRoute.indexedStack(
   builder: (context, state, navigationShell) {
-    return TabScaffold(navigationShell: navigationShell);
+    return MainShell(navigationShell: navigationShell);
   },
   branches: [
-    StatefulShellBranch(routes: [
-      GoRoute(path: '/home', builder: ...),
-    ]),
-    StatefulShellBranch(routes: [
-      GoRoute(path: '/search', builder: ...),
-    ]),
-    StatefulShellBranch(routes: [
-      GoRoute(path: '/profile', builder: ...),
-    ]),
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: '/home',
+          name: 'home',
+          builder: (context, state) => const HomeScreen(),
+          routes: [
+            GoRoute(
+              path: 'details/:id',
+              name: 'home-details',
+              builder: (context, state) => DetailsScreen(
+                id: state.pathParameters['id']!,
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: '/search',
+          name: 'search',
+          builder: (context, state) => const SearchScreen(),
+        ),
+      ],
+    ),
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: '/profile',
+          name: 'profile',
+          builder: (context, state) => const ProfileScreen(),
+        ),
+      ],
+    ),
   ],
 )
+```
 
-class TabScaffold extends StatelessWidget {
+```dart
+// lib/core/presentation/main_shell.dart
+class MainShell extends StatelessWidget {
+  const MainShell({super.key, required this.navigationShell});
+
   final StatefulNavigationShell navigationShell;
-
-  const TabScaffold({super.key, required this.navigationShell});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: navigationShell.currentIndex,
-        onTap: (index) => navigationShell.goBranch(
-          index,
-          initialLocation: index == navigationShell.currentIndex,
-        ),
-        items: const [...],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: navigationShell.currentIndex,
+        onDestinationSelected: _onTap,
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'الرئيسية',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.search_outlined),
+            selectedIcon: Icon(Icons.search),
+            label: 'البحث',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'حسابي',
+          ),
+        ],
       ),
+    );
+  }
+
+  void _onTap(int index) {
+    navigationShell.goBranch(
+      index,
+      // Go to initial location if tapping the current tab
+      initialLocation: index == navigationShell.currentIndex,
     );
   }
 }
@@ -164,38 +340,130 @@ class TabScaffold extends StatelessWidget {
 ## 4. Master-Detail Pattern
 
 ```dart
-final appRouter = GoRouter(
+// lib/core/router/routes.dart
+GoRoute(
+  path: '/items',
+  name: 'items',
+  builder: (context, state) => const ItemsListScreen(),
   routes: [
     GoRoute(
-      path: '/items',
-      builder: (context, state) => const ItemsListScreen(),
-      routes: [
-        GoRoute(
-          path: ':id',
-          builder: (context, state) {
-            final id = state.pathParameters['id']!;
-            return ItemDetailScreen(id: id);
-          },
-        ),
-      ],
+      path: ':id',
+      name: 'item-detail',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        final item = state.extra as Item?;
+        return ItemDetailScreen(id: id, item: item);
+      },
     ),
   ],
-);
+)
+```
 
-// List Screen
-class ItemsListScreen extends StatelessWidget {
+```dart
+// lib/features/items/presentation/items_list_screen.dart
+class ItemsListScreen extends ConsumerWidget {
+  const ItemsListScreen({super.key});
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final itemsAsync = ref.watch(itemsProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('العناصر')),
-      body: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(items[index].title),
-            onTap: () => context.push('/items/${items[index].id}'),
-          );
-        },
+      body: itemsAsync.when(
+        data: (items) => _ItemsList(items: items),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(child: Text('خطأ: $error')),
+      ),
+    );
+  }
+}
+
+class _ItemsList extends StatelessWidget {
+  const _ItemsList({required this.items});
+
+  final List<Item> items;
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return const Center(child: Text('لا توجد عناصر'));
+    }
+
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) => _ItemTile(item: items[index]),
+    );
+  }
+}
+
+class _ItemTile extends StatelessWidget {
+  const _ItemTile({required this.item});
+
+  final Item item;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: CircleAvatar(child: Text(item.title[0])),
+      title: Text(item.title),
+      subtitle: Text(item.description),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => context.push(
+        '/items/${item.id}',
+        extra: item, // Pass item to avoid refetching
+      ),
+    );
+  }
+}
+```
+
+```dart
+// lib/features/items/presentation/item_detail_screen.dart
+class ItemDetailScreen extends ConsumerWidget {
+  const ItemDetailScreen({
+    super.key,
+    required this.id,
+    this.item,
+  });
+
+  final String id;
+  final Item? item;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Use passed item or fetch from provider
+    final itemAsync = item != null
+        ? AsyncValue.data(item!)
+        : ref.watch(itemProvider(id));
+
+    return Scaffold(
+      appBar: AppBar(title: Text(item?.title ?? 'تفاصيل')),
+      body: itemAsync.when(
+        data: (item) => _ItemDetails(item: item!),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(child: Text('خطأ: $error')),
+      ),
+    );
+  }
+}
+
+class _ItemDetails extends StatelessWidget {
+  const _ItemDetails({required this.item});
+
+  final Item item;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(item.title, style: Theme.of(context).textTheme.headlineMedium),
+          const SizedBox(height: 16),
+          Text(item.description),
+        ],
       ),
     );
   }
@@ -207,29 +475,123 @@ class ItemsListScreen extends StatelessWidget {
 ## 5. Modal/Dialog Pattern
 
 ```dart
+// lib/core/router/routes.dart
 GoRoute(
   path: '/confirm',
+  name: 'confirm',
   pageBuilder: (context, state) {
-    return CustomTransitionPage(
-      key: state.pageKey,
-      child: ConfirmDialog(message: state.extra as String?),
-      opaque: false,
-      barrierDismissible: true,
-      barrierColor: Colors.black54,
-      transitionsBuilder: (context, animation, _, child) {
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
-      },
+    final args = state.extra as ConfirmDialogArgs?;
+    return DialogPage(
+      child: ConfirmDialog(
+        title: args?.title ?? 'تأكيد',
+        message: args?.message ?? 'هل أنت متأكد؟',
+        confirmText: args?.confirmText ?? 'تأكيد',
+        cancelText: args?.cancelText ?? 'إلغاء',
+      ),
     );
   },
 )
+```
 
+```dart
+// lib/core/presentation/dialog_page.dart
+class DialogPage<T> extends Page<T> {
+  const DialogPage({
+    required this.child,
+    super.key,
+    super.name,
+  });
+
+  final Widget child;
+
+  @override
+  Route<T> createRoute(BuildContext context) {
+    return DialogRoute<T>(
+      context: context,
+      settings: this,
+      barrierDismissible: true,
+      barrierColor: Colors.black54,
+      builder: (context) => child,
+    );
+  }
+}
+```
+
+```dart
+// lib/features/confirm/presentation/confirm_dialog.dart
+class ConfirmDialogArgs {
+  const ConfirmDialogArgs({
+    this.title,
+    this.message,
+    this.confirmText,
+    this.cancelText,
+    this.isDestructive = false,
+  });
+
+  final String? title;
+  final String? message;
+  final String? confirmText;
+  final String? cancelText;
+  final bool isDestructive;
+}
+
+class ConfirmDialog extends StatelessWidget {
+  const ConfirmDialog({
+    super.key,
+    required this.title,
+    required this.message,
+    required this.confirmText,
+    required this.cancelText,
+    this.isDestructive = false,
+  });
+
+  final String title;
+  final String message;
+  final String confirmText;
+  final String cancelText;
+  final bool isDestructive;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => context.pop(false),
+          child: Text(cancelText),
+        ),
+        FilledButton(
+          onPressed: () => context.pop(true),
+          style: isDestructive
+              ? FilledButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                )
+              : null,
+          child: Text(confirmText),
+        ),
+      ],
+    );
+  }
+}
+```
+
+```dart
 // Usage
-final result = await context.push<bool>('/confirm', extra: 'Are you sure?');
-if (result == true) {
-  // Confirmed
+Future<void> _deleteItem() async {
+  final confirmed = await context.push<bool>(
+    '/confirm',
+    extra: const ConfirmDialogArgs(
+      title: 'حذف العنصر',
+      message: 'هل أنت متأكد من حذف هذا العنصر؟',
+      confirmText: 'حذف',
+      isDestructive: true,
+    ),
+  );
+
+  if (confirmed == true) {
+    await ref.read(itemsProvider.notifier).delete(item.id);
+  }
 }
 ```
 
@@ -281,34 +643,167 @@ context.go('/checkout/cart');      // Previous step
 ## 7. Search with History Pattern
 
 ```dart
+// lib/core/router/routes.dart
 GoRoute(
   path: '/search',
+  name: 'search',
   builder: (context, state) {
-    final query = state.uri.queryParameters['q'];
-    return SearchScreen(initialQuery: query);
+    return SearchScreen(
+      query: state.uri.queryParameters['q'],
+      category: state.uri.queryParameters['category'],
+    );
   },
 )
+```
 
-class SearchScreen extends StatelessWidget {
-  final String? initialQuery;
+```dart
+// lib/features/search/presentation/search_screen.dart
+class SearchScreen extends ConsumerStatefulWidget {
+  const SearchScreen({
+    super.key,
+    this.query,
+    this.category,
+  });
 
-  void _search(BuildContext context, String query) {
-    // Updates URL without adding to history
-    context.go('/search?q=${Uri.encodeComponent(query)}');
+  final String? query;
+  final String? category;
+
+  @override
+  ConsumerState<SearchScreen> createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends ConsumerState<SearchScreen> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.query);
+  }
+
+  @override
+  void didUpdateWidget(SearchScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.query != oldWidget.query) {
+      _controller.text = widget.query ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _search(String query) {
+    if (query.isEmpty) return;
+
+    final uri = Uri(
+      path: '/search',
+      queryParameters: {
+        'q': query,
+        if (widget.category != null) 'category': widget.category!,
+      },
+    );
+    context.go(uri.toString());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: SearchField(
-          initialValue: initialQuery,
-          onSubmitted: (query) => _search(context, query),
+        title: _SearchField(
+          controller: _controller,
+          onSubmitted: _search,
         ),
       ),
-      body: initialQuery != null
-          ? SearchResults(query: initialQuery!)
-          : const SearchSuggestions(),
+      body: widget.query != null
+          ? _SearchResults(
+              query: widget.query!,
+              category: widget.category,
+            )
+          : const _SearchSuggestions(),
+    );
+  }
+}
+
+class _SearchField extends StatelessWidget {
+  const _SearchField({
+    required this.controller,
+    required this.onSubmitted,
+  });
+
+  final TextEditingController controller;
+  final ValueChanged<String> onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: 'ابحث...',
+        border: InputBorder.none,
+        suffixIcon: IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () => controller.clear(),
+        ),
+      ),
+      textInputAction: TextInputAction.search,
+      onSubmitted: onSubmitted,
+    );
+  }
+}
+
+class _SearchResults extends ConsumerWidget {
+  const _SearchResults({
+    required this.query,
+    this.category,
+  });
+
+  final String query;
+  final String? category;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final resultsAsync = ref.watch(
+      searchResultsProvider((query: query, category: category)),
+    );
+
+    return resultsAsync.when(
+      data: (results) => ListView.builder(
+        itemCount: results.length,
+        itemBuilder: (context, index) => _SearchResultTile(
+          result: results[index],
+        ),
+      ),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => Center(child: Text('خطأ: $error')),
+    );
+  }
+}
+
+class _SearchResultTile extends StatelessWidget {
+  const _SearchResultTile({required this.result});
+
+  final SearchResult result;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(result.title),
+      subtitle: Text(result.description),
+      onTap: () => context.push('/items/${result.id}'),
+    );
+  }
+}
+
+class _SearchSuggestions extends StatelessWidget {
+  const _SearchSuggestions();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text('ابدأ البحث...'),
     );
   }
 }

@@ -235,60 +235,156 @@ GoRoute(
 
 ## مثال كامل
 
+### هيكلة الملفات
+
+```
+lib/
+├── main.dart
+├── core/
+│   └── router/
+│       ├── app_router.dart
+│       └── routes.dart
+├── features/
+│   ├── home/
+│   │   └── presentation/
+│   │       └── home_screen.dart
+│   ├── profile/
+│   │   └── presentation/
+│   │       └── profile_screen.dart
+│   └── error/
+│       └── presentation/
+│           └── error_screen.dart
+```
+
+### ملف الـ Router
+
 ```dart
-// lib/router/app_router.dart
-import 'package:go_router/go_router.dart';
+// lib/core/router/app_router.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import 'routes.dart';
+import '../../features/error/presentation/error_screen.dart';
+
+/// Main app router configuration
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/',
-  debugLogDiagnostics: true,
-
-  // Error page
-  errorBuilder: (context, state) => Scaffold(
-    appBar: AppBar(title: const Text('خطأ')),
-    body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error, size: 64, color: Colors.red),
-          const SizedBox(height: 16),
-          Text('الصفحة غير موجودة:\n${state.uri}'),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () => context.go('/'),
-            child: const Text('الرجوع للرئيسية'),
-          ),
-        ],
-      ),
-    ),
+  initialLocation: Routes.home,
+  debugLogDiagnostics: kDebugMode,
+  errorBuilder: (context, state) => ErrorScreen(
+    error: state.error,
+    uri: state.uri,
   ),
-
-  routes: [
-    GoRoute(
-      path: '/',
-      name: 'home',
-      builder: (context, state) => const HomeScreen(),
-    ),
-    GoRoute(
-      path: '/details',
-      name: 'details',
-      builder: (context, state) => const DetailsScreen(),
-    ),
-    GoRoute(
-      path: '/profile/:userId',
-      name: 'profile',
-      builder: (context, state) {
-        final userId = state.pathParameters['userId']!;
-        return ProfileScreen(userId: userId);
-      },
-    ),
-  ],
+  routes: $appRoutes,
 );
+```
 
+### ملف الـ Routes
+
+```dart
+// lib/core/router/routes.dart
+import 'package:go_router/go_router.dart';
+
+import '../../features/home/presentation/home_screen.dart';
+import '../../features/profile/presentation/profile_screen.dart';
+
+/// Route paths as constants
+abstract final class Routes {
+  static const home = '/';
+  static const profile = '/profile/:userId';
+
+  // Helper to build profile path
+  static String profilePath(String userId) => '/profile/$userId';
+}
+
+/// All app routes
+final List<RouteBase> $appRoutes = [
+  GoRoute(
+    path: Routes.home,
+    name: 'home',
+    builder: (context, state) => const HomeScreen(),
+  ),
+  GoRoute(
+    path: Routes.profile,
+    name: 'profile',
+    builder: (context, state) {
+      final userId = state.pathParameters['userId']!;
+      return ProfileScreen(userId: userId);
+    },
+  ),
+];
+```
+
+### صفحة الخطأ
+
+```dart
+// lib/features/error/presentation/error_screen.dart
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+class ErrorScreen extends StatelessWidget {
+  const ErrorScreen({
+    super.key,
+    this.error,
+    required this.uri,
+  });
+
+  final Exception? error;
+  final Uri uri;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 80,
+                  color: theme.colorScheme.error,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'الصفحة غير موجودة',
+                  style: theme.textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  uri.toString(),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+                FilledButton.icon(
+                  onPressed: () => context.go('/'),
+                  icon: const Icon(Icons.home),
+                  label: const Text('الرئيسية'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+### main.dart
+
+```dart
 // lib/main.dart
 import 'package:flutter/material.dart';
-import 'router/app_router.dart';
+
+import 'core/router/app_router.dart';
 
 void main() => runApp(const MyApp());
 
@@ -299,6 +395,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'My App',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
       routerConfig: appRouter,
     );
   }

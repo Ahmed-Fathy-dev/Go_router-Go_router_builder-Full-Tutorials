@@ -186,24 +186,126 @@ final appRouter = GoRouter(
 );
 ```
 
-### مع Riverpod
+### مع Riverpod 3+
 
 ```dart
-final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  return AuthNotifier();
-});
+// lib/features/auth/providers/auth_provider.dart
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-// In the router
-GoRouter(
-  refreshListenable: GoRouterRefreshStream(
-    ref.watch(authProvider.notifier).stream,
-  ),
-  redirect: (context, state) {
-    final authState = ref.read(authProvider);
-    // ...
-  },
-  routes: [...],
-)
+part 'auth_provider.g.dart';
+
+/// Auth state
+class AuthState {
+  const AuthState({
+    this.user,
+    this.isLoading = false,
+  });
+
+  final User? user;
+  final bool isLoading;
+
+  bool get isAuthenticated => user != null;
+
+  AuthState copyWith({User? user, bool? isLoading}) {
+    return AuthState(
+      user: user ?? this.user,
+      isLoading: isLoading ?? this.isLoading,
+    );
+  }
+}
+
+/// Auth notifier using Riverpod 3+ syntax
+@riverpod
+class Auth extends _$Auth {
+  @override
+  AuthState build() => const AuthState();
+
+  Future<void> login(String email, String password) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final user = await AuthRepository.login(email, password);
+      state = AuthState(user: user);
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  void logout() {
+    state = const AuthState();
+  }
+}
+
+/// Listenable for GoRouter refresh
+@riverpod
+Listenable authRefreshListenable(Ref ref) {
+  return _AuthRefreshNotifier(ref);
+}
+
+class _AuthRefreshNotifier extends ChangeNotifier {
+  _AuthRefreshNotifier(this._ref) {
+    _ref.listen(authProvider, (_, __) => notifyListeners());
+  }
+
+  final Ref _ref;
+}
+```
+
+```dart
+// lib/core/router/app_router.dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+final routerProvider = Provider<GoRouter>((ref) {
+  final authState = ref.watch(authProvider);
+  final refreshListenable = ref.watch(authRefreshListenableProvider);
+
+  return GoRouter(
+    refreshListenable: refreshListenable,
+    redirect: (context, state) {
+      final isAuthenticated = authState.isAuthenticated;
+      final isAuthRoute = state.uri.path == '/login';
+
+      if (!isAuthenticated && !isAuthRoute) {
+        return '/login?redirect=${state.uri}';
+      }
+
+      if (isAuthenticated && isAuthRoute) {
+        return state.uri.queryParameters['redirect'] ?? '/';
+      }
+
+      return null;
+    },
+    routes: [...],
+  );
+});
+```
+
+```dart
+// lib/main.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+void main() {
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
+}
+
+class MyApp extends ConsumerWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+
+    return MaterialApp.router(
+      routerConfig: router,
+      // ...
+    );
+  }
+}
 ```
 
 ---
