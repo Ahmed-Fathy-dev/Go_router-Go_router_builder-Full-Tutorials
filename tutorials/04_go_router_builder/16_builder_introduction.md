@@ -25,7 +25,7 @@ context.go('/product/abc');  // id should be int
 
 ## الحل: GoRouter Builder
 
-**go_router_builder** هو package بيولد كود type-safe للـ routes:
+مع **go_router_builder** ال package بتولد كود type-safe للـ routes:
 
 ```dart
 // ✅ Benefits:
