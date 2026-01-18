@@ -13,7 +13,6 @@
 ### المشكلة مع Navigator 1.0
 
 ```dart
-// الطريقة القديمة - مش مريحة
 Navigator.push(
   context,
   MaterialPageRoute(
