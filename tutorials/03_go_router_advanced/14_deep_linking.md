@@ -20,7 +20,7 @@
 
 ## GoRouter والـ Deep Linking
 
-الخبر الحلو: **GoRouter بيدعم Deep Linking تلقائياً!**
+من ميزات **GoRouter انه بيدعم Deep Linking تلقائياً!**
 
 لو عندك route معرف بـ path معين، GoRouter هيفهمه لما يجيله deep link.
 
