@@ -1,6 +1,6 @@
 # GoRouter & GoRouter Builder - Full Tutorials
 
-> دليلك الشامل لإتقان التنقل في Flutter من الصفر للاحتراف
+> دليلك الشامل لإتقان ال Navigation في Flutter من الصفر للاحتراف
 
 [![go_router](https://img.shields.io/badge/go__router-v17.0.1-blue)](https://pub.dev/packages/go_router)
 [![go_router_builder](https://img.shields.io/badge/go__router__builder-v4.1.3-green)](https://pub.dev/packages/go_router_builder)
